@@ -2,6 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { ArrowRight } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 
 interface SchemeCategoryProps {
   title: string;
@@ -10,6 +11,7 @@ interface SchemeCategoryProps {
   schemeCount: number;
   bgColor: string;
   ctaText: string;
+  categoryId?: string;
 }
 
 export function SchemeCategory({
@@ -18,8 +20,17 @@ export function SchemeCategory({
   iconSrc,
   schemeCount,
   bgColor,
-  ctaText
+  ctaText,
+  categoryId
 }: SchemeCategoryProps) {
+  const navigate = useNavigate();
+  
+  const handleExplore = () => {
+    if (categoryId) {
+      navigate(`/schemes/${categoryId}`);
+    }
+  };
+  
   return (
     <Card className={`overflow-hidden border-none shadow-md hover:shadow-lg transition-shadow ${bgColor}`}>
       <CardHeader className="pb-2">
@@ -36,6 +47,7 @@ export function SchemeCategory({
         <Button 
           variant="outline" 
           className="bg-white/80 hover:bg-white border-none text-desi-textDark w-full justify-between"
+          onClick={handleExplore}
         >
           {ctaText}
           <ArrowRight className="h-4 w-4 ml-2" />

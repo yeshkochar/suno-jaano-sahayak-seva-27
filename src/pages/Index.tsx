@@ -97,6 +97,7 @@ const Index = () => {
               schemeCount={12}
               bgColor="bg-red-100"
               ctaText={dictionary.healthCta}
+              categoryId="health"
             />
             
             <SchemeCategory
@@ -106,6 +107,7 @@ const Index = () => {
               schemeCount={18}
               bgColor="bg-blue-100"
               ctaText={dictionary.educationCta}
+              categoryId="education"
             />
             
             <SchemeCategory
@@ -115,6 +117,7 @@ const Index = () => {
               schemeCount={8}
               bgColor="bg-green-100"
               ctaText={dictionary.housingCta}
+              categoryId="housing"
             />
             
             <SchemeCategory
@@ -124,6 +127,7 @@ const Index = () => {
               schemeCount={15}
               bgColor="bg-yellow-100"
               ctaText={dictionary.agricultureCta}
+              categoryId="agriculture"
             />
             
             <SchemeCategory
@@ -133,6 +137,7 @@ const Index = () => {
               schemeCount={10}
               bgColor="bg-purple-100"
               ctaText={dictionary.employmentCta}
+              categoryId="employment"
             />
             
             <SchemeCategory
@@ -142,6 +147,7 @@ const Index = () => {
               schemeCount={6}
               bgColor="bg-pink-100"
               ctaText={dictionary.womenCta || "Explore Women & Child Schemes"}
+              categoryId="women"
             />
           </div>
         </div>
