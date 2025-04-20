@@ -52,6 +52,21 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+        // Desi color palette
+        desi: {
+          orange: '#FF7722',
+          yellow: '#FFBB00',
+          red: '#D35050',
+          green: '#227743',
+          blue: '#2274A5',
+          purple: '#9B5DE5',
+          pink: '#F15BB5',
+          warmBeige: '#F2EBDC',
+          softSaffron: '#F4C430',
+          earthBrown: '#8D6E63',
+          textDark: '#333333',
+          textLight: '#F8F0E3',
+        },
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
