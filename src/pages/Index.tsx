@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Header } from "@/components/Header";
 import { VoiceAssistant } from "@/components/VoiceAssistant";
 import { SchemeCategory } from "@/components/SchemeCategory";
@@ -7,14 +7,30 @@ import { EligibilityChecker } from "@/components/EligibilityChecker";
 import { Footer } from "@/components/Footer";
 import { dictionaries } from "@/lib/dictionaries";
 import { Button } from "@/components/ui/button";
-import { Mic } from "lucide-react";
+import { Mic, ChevronRight } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const [currentLanguage, setCurrentLanguage] = useState("en");
+  const [showVoiceAssistantDialog, setShowVoiceAssistantDialog] = useState(false);
+  const eligibilityRef = useRef<HTMLDivElement>(null);
   const dictionary = dictionaries[currentLanguage] || dictionaries.en;
+  const { toast } = useToast();
 
   const handleLanguageChange = (code: string) => {
     setCurrentLanguage(code);
+  };
+
+  const handleVoiceAssistantClick = () => {
+    setShowVoiceAssistantDialog(true);
+    toast({
+      title: dictionary.voiceAssistantActivated || "Voice Assistant Activated",
+      description: dictionary.speakNow || "Speak now to find government schemes",
+    });
+  };
+
+  const scrollToEligibilityChecker = () => {
+    eligibilityRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -39,13 +55,16 @@ const Index = () => {
               <Button 
                 className="bg-desi-orange hover:bg-desi-orange/90 text-white"
                 size="lg"
+                onClick={scrollToEligibilityChecker}
               >
                 {dictionary.heroAction}
+                <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
               <Button 
                 variant="outline" 
                 className="border-desi-blue/30 text-desi-blue hover:bg-desi-blue/10"
                 size="lg"
+                onClick={handleVoiceAssistantClick}
               >
                 <Mic className="mr-2 h-4 w-4" />
                 {dictionary.heroVoice}
@@ -117,19 +136,19 @@ const Index = () => {
             />
             
             <SchemeCategory
-              title={dictionary.healthTitle}
-              description={dictionary.healthDescription}
+              title={dictionary.womenTitle || "Women & Child"}
+              description={dictionary.womenDescription || "Support for women, maternity benefits, and child welfare programs"}
               iconSrc="https://api.iconify.design/lucide:baby.svg?color=%23F15BB5"
               schemeCount={6}
               bgColor="bg-pink-100"
-              ctaText={dictionary.healthCta}
+              ctaText={dictionary.womenCta || "Explore Women & Child Schemes"}
             />
           </div>
         </div>
       </section>
       
       {/* Eligibility Checker Section */}
-      <section className="py-16 bg-gradient-to-r from-desi-blue/5 to-desi-purple/5">
+      <section className="py-16 bg-gradient-to-r from-desi-blue/5 to-desi-purple/5" ref={eligibilityRef}>
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
             <h2 className="text-2xl md:text-3xl font-bold text-desi-textDark mb-2">

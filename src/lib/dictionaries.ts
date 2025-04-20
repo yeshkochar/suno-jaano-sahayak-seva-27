@@ -46,6 +46,11 @@ export const dictionaries: { [key: string]: Dictionary } = {
     employmentDescription: "Job training, entrepreneurship support, and employment programs",
     employmentCta: "Explore Employment Schemes",
     
+    // Women & Child
+    womenTitle: "Women & Child",
+    womenDescription: "Support for women, maternity benefits, and child welfare programs",
+    womenCta: "Explore Women & Child Schemes",
+    
     // Eligible schemes
     pmKisan: "PM-KISAN",
     pmKisanDesc: "Financial assistance for farmers",
@@ -90,6 +95,14 @@ export const dictionaries: { [key: string]: Dictionary } = {
     // Voice assistant
     youSaid: "You said",
     assistantResponse: "Assistant",
+    voiceAssistantActivated: "Voice Assistant Activated",
+    speakNow: "Speak now to find government schemes",
+    errorOccurred: "Error occurred",
+    notSupported: "Not supported",
+    browserNotSupported: "Your browser doesn't support speech recognition",
+    speechNotSupported: "Your browser doesn't support text-to-speech",
+    noResponse: "No response",
+    noResponseMessage: "There is no response to read",
     
     // Footer
     aboutUs: "About Us",
@@ -142,6 +155,11 @@ export const dictionaries: { [key: string]: Dictionary } = {
     employmentDescription: "नौकरी प्रशिक्षण, उद्यमिता समर्थन और रोजगार कार्यक्रम",
     employmentCta: "रोजगार योजनाएँ देखें",
     
+    // Women & Child
+    womenTitle: "महिला और बाल",
+    womenDescription: "महिलाओं के लिए समर्थन, मातृत्व लाभ, और बाल कल्याण कार्यक्रम",
+    womenCta: "महिला और बाल योजनाएँ देखें",
+    
     // Eligible schemes
     pmKisan: "पीएम-किसान",
     pmKisanDesc: "किसानों के लिए वित्तीय सहायता",
@@ -186,6 +204,14 @@ export const dictionaries: { [key: string]: Dictionary } = {
     // Voice assistant
     youSaid: "आपने कहा",
     assistantResponse: "सहायक",
+    voiceAssistantActivated: "आवाज सहायक सक्रिय किया गया",
+    speakNow: "सरकारी योजनाओं के बारे में जानने के लिए अब बोलें",
+    errorOccurred: "त्रुटि हुई",
+    notSupported: "समर्थित नहीं है",
+    browserNotSupported: "आपका ब्राउज़र स्पीच रिकग्निशन का समर्थन नहीं करता है",
+    speechNotSupported: "आपका ब्राउज़र टेक्स्ट-टू-स्पीच का समर्थन नहीं करता है",
+    noResponse: "कोई जवाब नहीं",
+    noResponseMessage: "पढ़ने के लिए कोई जवाब नहीं है",
     
     // Footer
     aboutUs: "हमारे बारे में",
@@ -238,6 +264,11 @@ export const dictionaries: { [key: string]: Dictionary } = {
     employmentDescription: "কাজের প্রশিক্ষণ, উদ্যোক্তা সমর্থন এবং কর্মসংস্থান প্রোগ্রাম",
     employmentCta: "কর্মসংস্থান প্রকল্পগুলি দেখুন",
     
+    // Women & Child
+    womenTitle: "মহিলা ও শিশু",
+    womenDescription: "মহিলাদের জন্য সহায়তা, মাতৃত্বকালীন সুবিধা, এবং শিশু কল্যাণ প্রোগ্রাম",
+    womenCta: "মহিলা ও শিশু প্রকল্পগুলি দেখুন",
+    
     // Eligible schemes
     pmKisan: "পিএম-কিষাণ",
     pmKisanDesc: "কৃষকদের জন্য আর্থিক সহায়তা",
@@ -282,6 +313,14 @@ export const dictionaries: { [key: string]: Dictionary } = {
     // Voice assistant
     youSaid: "আপনি বলেছেন",
     assistantResponse: "সহকারী",
+    voiceAssistantActivated: "ভয়েস সহকারী সক্রিয় করা হয়েছে",
+    speakNow: "সরকারি প্রকল্প সম্পর্কে জানতে এখন কথা বলুন",
+    errorOccurred: "ত্রুটি ঘটেছে",
+    notSupported: "সমর্থিত নয়",
+    browserNotSupported: "আপনার ব্রাউজার স্পিচ রিকগনিশন সমর্থন করে না",
+    speechNotSupported: "আপনার ব্রাউজার টেক্সট-টু-স্পিচ সমর্থন করে না",
+    noResponse: "কোনো উত্তর নেই",
+    noResponseMessage: "পড়ার জন্য কোনো উত্তর নেই",
     
     // Footer
     aboutUs: "আমাদের সম্পর্কে",
