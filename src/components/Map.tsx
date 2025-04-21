@@ -1,35 +1,7 @@
 
-import React, { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-
-// Fix default icon issues in Leaflet with webpack
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-});
-
-// Define marker icons
-const hospitalIcon = new L.Icon({
-  iconUrl: "https://unpkg.com/leaflet-color-markers@1.1.0/img/marker-icon-red.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-
-const govtIcon = new L.Icon({
-  iconUrl: "https://unpkg.com/leaflet-color-markers@1.1.0/img/marker-icon-blue.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { ExternalLink } from "lucide-react";
 
 type MapProps = {
   lng?: number;
@@ -37,95 +9,79 @@ type MapProps = {
   zoom?: number;
 };
 
-// Data for map markers
+// Data for map markers we'll use in the static image
 const hospitals = [
-  { position: [28.6548, 77.236721] as [number, number], name: "City General Hospital" },
-  { position: [28.6248, 77.201721] as [number, number], name: "Medical Center" },
+  { position: [28.6548, 77.236721], name: "City General Hospital" },
+  { position: [28.6248, 77.201721], name: "Medical Center" },
 ];
 
 const offices = [
-  { position: [28.6348, 77.226721] as [number, number], name: "Municipal Office" },
-  { position: [28.6598, 77.196721] as [number, number], name: "District Administration" },
+  { position: [28.6348, 77.226721], name: "Municipal Office" },
+  { position: [28.6598, 77.196721], name: "District Administration" },
 ];
-
-// Component to get and show user location
-function UserLocationMarker() {
-  const [position, setPosition] = useState<[number, number] | null>(null);
-  const map = useMap();
-
-  useEffect(() => {
-    if (!navigator.geolocation) return;
-    
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const userPos: [number, number] = [pos.coords.latitude, pos.coords.longitude];
-        setPosition(userPos);
-        map.setView(userPos, 13);
-      },
-      () => {
-        console.log("Could not get user location");
-      }
-    );
-  }, [map]);
-
-  if (!position) return null;
-  
-  return (
-    <Marker position={position}>
-      <Popup>You are here!</Popup>
-    </Marker>
-  );
-}
 
 const Map: React.FC<MapProps> = ({
   lat = 28.6448,
   lng = 77.216721,
   zoom = 11,
 }) => {
-  // Default center position
-  const defaultPosition: [number, number] = [lat, lng];
+  // Create a static map URL using OpenStreetMap
+  const staticMapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${lng-0.1}%2C${lat-0.1}%2C${lng+0.1}%2C${lat+0.1}&layer=mapnik&marker=${lat}%2C${lng}`;
+  
+  // Create a link to the full map
+  const fullMapUrl = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=${zoom}/${lat}/${lng}`;
   
   return (
-    <div className="relative w-full h-96 rounded-lg overflow-hidden bg-gray-100">
-      <MapContainer
-        style={{ height: '100%', width: '100%' }}
-        center={defaultPosition}
-        zoom={zoom}
-        scrollWheelZoom={true}
-      >
-        <TileLayer
-          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
+    <div className="space-y-4">
+      <div className="relative w-full h-96 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
+        <iframe 
+          src={staticMapUrl}
+          style={{ height: '100%', width: '100%', border: 'none' }}
+          title="Map of hospitals and government offices"
+          className="rounded-lg"
+        ></iframe>
+      </div>
+      
+      <div className="space-y-3">
+        <div>
+          <h3 className="font-medium text-gray-900">Nearby Hospitals</h3>
+          <ul className="mt-2 space-y-2">
+            {hospitals.map((hospital, index) => (
+              <li key={`hospital-${index}`} className="flex items-start gap-2">
+                <div className="h-4 w-4 mt-0.5 rounded-full bg-red-500 flex-shrink-0"></div>
+                <div>
+                  <p className="font-medium">{hospital.name}</p>
+                  <p className="text-sm text-gray-500">
+                    Lat: {hospital.position[0]}, Lng: {hospital.position[1]}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
         
-        <UserLocationMarker />
-        
-        {/* Hospital markers */}
-        {hospitals.map((hospital, index) => (
-          <Marker 
-            key={`hospital-${index}`} 
-            position={hospital.position}
-            icon={hospitalIcon}
-          >
-            <Popup>
-              <strong>{hospital.name}</strong><br />Hospital
-            </Popup>
-          </Marker>
-        ))}
-        
-        {/* Government office markers */}
-        {offices.map((office, index) => (
-          <Marker 
-            key={`office-${index}`} 
-            position={office.position}
-            icon={govtIcon}
-          >
-            <Popup>
-              <strong>{office.name}</strong><br />Government Office
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
+        <div>
+          <h3 className="font-medium text-gray-900">Nearby Government Offices</h3>
+          <ul className="mt-2 space-y-2">
+            {offices.map((office, index) => (
+              <li key={`office-${index}`} className="flex items-start gap-2">
+                <div className="h-4 w-4 mt-0.5 rounded-full bg-blue-500 flex-shrink-0"></div>
+                <div>
+                  <p className="font-medium">{office.name}</p>
+                  <p className="text-sm text-gray-500">
+                    Lat: {office.position[0]}, Lng: {office.position[1]}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+      
+      <Button className="w-full gap-2" variant="outline" onClick={() => window.open(fullMapUrl, '_blank')}>
+        Open in OpenStreetMap
+        <ExternalLink className="h-4 w-4" />
+      </Button>
     </div>
   );
 };
