@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { dictionaries } from "@/lib/dictionaries";
 import { useState } from "react";
+import { VoiceGuidedExplanation } from "@/components/VoiceGuidedExplanation";
 
 // Dummy data for schemes by category
 const schemesByCategory: Record<string, Array<{ id: string; title: string; description: string; eligibility: string[]; benefits: string[]; documents: string[] }>> = {
@@ -208,7 +209,12 @@ const SchemeDetails = () => {
                     </div>
                   </div>
                   
-                  <div className="bg-desi-warmBeige/30 px-6 py-4 flex justify-end">
+                  <div className="bg-desi-warmBeige/30 px-6 py-4 flex justify-between items-center">
+                    <VoiceGuidedExplanation 
+                      dictionary={dictionary}
+                      currentLanguage={currentLanguage}
+                      schemeId={scheme.id}
+                    />
                     <Button 
                       className="bg-desi-orange hover:bg-desi-orange/90 text-white"
                     >

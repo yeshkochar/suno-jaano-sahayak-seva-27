@@ -104,6 +104,14 @@ export const dictionaries: { [key: string]: Dictionary } = {
     noResponse: "No response",
     noResponseMessage: "There is no response to read",
     
+    // Voice Guided Explanation
+    listenSchemeDetails: "Listen to scheme details",
+    listenOrReadDetails: "Listen to or read detailed information about this scheme",
+    playAll: "Play All",
+    pause: "Pause",
+    stop: "Stop",
+    close: "Close",
+    
     // Footer
     aboutUs: "About Us",
     contactUs: "Contact Us",
@@ -213,6 +221,14 @@ export const dictionaries: { [key: string]: Dictionary } = {
     noResponse: "कोई जवाब नहीं",
     noResponseMessage: "पढ़ने के लिए कोई जवाब नहीं है",
     
+    // Voice Guided Explanation
+    listenSchemeDetails: "योजना विवरण सुनें",
+    listenOrReadDetails: "इस योजना के बारे में विस्तृत जानकारी सुनें या पढ़ें",
+    playAll: "सभी सुनें",
+    pause: "रोकें",
+    stop: "बंद करें",
+    close: "बंद करें",
+    
     // Footer
     aboutUs: "हमारे बारे में",
     contactUs: "संपर्क करें",
@@ -321,6 +337,14 @@ export const dictionaries: { [key: string]: Dictionary } = {
     speechNotSupported: "আপনার ব্রাউজার টেক্সট-টু-স্পিচ সমর্থন করে না",
     noResponse: "কোনো উত্তর নেই",
     noResponseMessage: "পড়ার জন্য কোনো উত্তর নেই",
+    
+    // Voice Guided Explanation
+    listenSchemeDetails: "প্রকল্পের বিবরণ শুনুন",
+    listenOrReadDetails: "এই প্রকল্প সম্পর্কে বিস্তারিত তথ্য শুনুন বা পড়ুন",
+    playAll: "সব শুনুন",
+    pause: "বিরতি দিন",
+    stop: "থামান",
+    close: "বন্ধ করুন",
     
     // Footer
     aboutUs: "আমাদের সম্পর্কে",
