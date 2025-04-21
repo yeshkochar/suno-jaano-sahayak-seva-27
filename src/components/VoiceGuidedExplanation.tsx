@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -141,7 +140,7 @@ export function VoiceGuidedExplanation({ dictionary, currentLanguage, schemeId }
   const [isOpen, setIsOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
   const { toast } = useToast();
 
   // Get the explanation based on scheme ID and language
@@ -170,9 +169,7 @@ export function VoiceGuidedExplanation({ dictionary, currentLanguage, schemeId }
       speech.pitch = 1;
       
       // Store the speech synthesis instance
-      if (audioRef.current) {
-        audioRef.current = speech;
-      }
+      speechRef.current = speech;
       
       speech.onend = () => {
         // If there are more paragraphs, play the next one
