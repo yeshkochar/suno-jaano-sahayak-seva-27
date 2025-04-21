@@ -37,12 +37,15 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
         recognitionRef.current.onresult = (event: any) => {
           const current = event.resultIndex;
           const transcriptText = event.results[current][0].transcript;
-          setTranscript(transcriptText);
           
           console.log(`Speech recognized: "${transcriptText}"`);
           console.log(`Is final: ${event.results[current].isFinal}`);
+          console.log(`Current language: ${currentLanguage}`);
           
-          // Generate response for all results, not just final ones
+          // Update transcript regardless of whether it's final
+          setTranscript(transcriptText);
+          
+          // Generate response for all recognized speech
           generateResponse(transcriptText);
         };
         
@@ -82,6 +85,7 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
       setIsListening(false);
     } else {
       setTranscript("");
+      setResponse("");
       recognitionRef.current?.start();
       setIsListening(true);
       console.log("Started listening");
@@ -97,26 +101,36 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
     
     // Use different responses based on the current language
     if (currentLanguage === "hi") {
-      if (lowerText.includes("स्वास्थ्य") || lowerText.includes("चिकित्सा") || lowerText.includes("health")) {
-        responseText = "आप आयुष्मान भारत के लिए पात्र हो सकते हैं जो प्रति परिवार प्रति वर्ष ₹5 लाख तक का स्वास्थ्य बीमा कवरेज प्रदान करता है। क्या आप स्वास्थ्य योजनाओं के बारे में और जानना चाहेंगे?";
-      } else if (lowerText.includes("शिक्षा") || lowerText.includes("विद्यालय") || lowerText.includes("कॉलेज") || lowerText.includes("education")) {
-        responseText = "छात्रों के लिए कई शिक्षा योजनाएँ जैसे छात्रवृत्ति उपलब्ध हैं। पीएम विद्या योजना उच्च शिक्षा के लिए वित्तीय सहायता प्रदान करती है। क्या आप और जानना चाहेंगे?";
-      } else if (lowerText.includes("किसान") || lowerText.includes("कृषि") || lowerText.includes("खेती") || lowerText.includes("farmer")) {
-        responseText = "एक किसान के रूप में, आप पीएम-किसान के लिए पात्र हो सकते हैं जो प्रति वर्ष ₹6,000 की आय सहायता प्रदान करता है। फसल बीमा और सब्सिडी वाले उपकरणों के लिए भी योजनाएँ हैं।";
-      } else if (lowerText.includes("घर") || lowerText.includes("आवास") || lowerText.includes("मकान") || lowerText.includes("house")) {
-        responseText = "पीएम आवास योजना कम आय वाले परिवारों के लिए आवास सहायता प्रदान करती है। आप गृह ऋण पर सब्सिडी या प्रत्यक्ष वित्तीय सहायता के लिए पात्र हो सकते हैं।";
-      } else if (lowerText.includes("नौकरी") || lowerText.includes("रोजगार") || lowerText.includes("काम") || lowerText.includes("job")) {
-        responseText = "कौशल विकास और नौकरी प्रशिक्षण के लिए पीएमकेवीवाई जैसी रोजगार योजनाएँ हैं। मुद्रा योजना छोटे व्यवसायों और उद्यमियों के लिए ऋण प्रदान करती है।";
-      } else if (lowerText.includes("महिला") || lowerText.includes("बच्चा") || lowerText.includes("बेटी") || lowerText.includes("women") || lowerText.includes("child")) {
-        responseText = "महिलाओं और बच्चों के लिए योजनाओं में बेटी बचाओ बेटी पढाओ और बालिका शिक्षा और कल्याण के लिए सुकन्या समृद्धि योजना शामिल हैं।";
-      } else if (lowerText.includes("योजना") || lowerText.includes("scheme") || lowerText.includes("government")) {
-        responseText = "भारत सरकार द्वारा विभिन्न श्रेणियों में कई योजनाएँ प्रदान की जाती हैं। आप किस विशेष क्षेत्र में सहायता चाहते हैं?";
-      } else if (lowerText.includes("हेलो") || lowerText.includes("नमस्ते") || lowerText.includes("hi") || lowerText.includes("hello")) {
+      if (lowerText.includes("नमस्ते") || lowerText.includes("नमस्कार") || lowerText.includes("हैलो") || lowerText.includes("hello")) {
         responseText = "नमस्ते! मैं आपकी सरकारी योजनाओं के बारे में जानकारी पाने में मदद कर सकता हूँ। आप किस तरह की योजनाओं के बारे में जानना चाहते हैं?";
-      } else {
+      }
+      else if (lowerText.includes("स्वास्थ्य") || lowerText.includes("चिकित्सा") || lowerText.includes("health") || lowerText.includes("बीमारी") || lowerText.includes("अस्पताल") || lowerText.includes("डॉक्टर")) {
+        responseText = "आप आयुष्मान भारत के लिए पात्र हो सकते हैं जो प्रति परिवार प्रति वर्ष ₹5 लाख तक का स्वास्थ्य बीमा कवरेज प्रदान करता है। क्या आप स्वास्थ्य योजनाओं के बारे में और जानना चाहेंगे?";
+      } 
+      else if (lowerText.includes("शिक्षा") || lowerText.includes("विद्यालय") || lowerText.includes("कॉलेज") || lowerText.includes("education") || lowerText.includes("पढ़ाई") || lowerText.includes("स्कूल")) {
+        responseText = "छात्रों के लिए कई शिक्षा योजनाएँ जैसे छात्रवृत्ति उपलब्ध हैं। पीएम विद्या योजना उच्च शिक्षा के लिए वित्तीय सहायता प्रदान करती है। क्या आप और जानना चाहेंगे?";
+      } 
+      else if (lowerText.includes("किसान") || lowerText.includes("कृषि") || lowerText.includes("खेती") || lowerText.includes("farmer") || lowerText.includes("फसल")) {
+        responseText = "एक किसान के रूप में, आप पीएम-किसान के लिए पात्र हो सकते हैं जो प्रति वर्ष ₹6,000 की आय सहायता प्रदान करता है। फसल बीमा और सब्सिडी वाले उपकरणों के लिए भी योजनाएँ हैं।";
+      } 
+      else if (lowerText.includes("घर") || lowerText.includes("आवास") || lowerText.includes("मकान") || lowerText.includes("house") || lowerText.includes("गृह")) {
+        responseText = "पीएम आवास योजना कम आय वाले परिवारों के लिए आवास सहायता प्रदान करती है। आप गृह ऋण पर सब्सिडी या प्रत्यक्ष वित्तीय सहायता के लिए पात्र हो सकते हैं।";
+      } 
+      else if (lowerText.includes("नौकरी") || lowerText.includes("रोजगार") || lowerText.includes("काम") || lowerText.includes("job") || lowerText.includes("व्यवसाय")) {
+        responseText = "कौशल विकास और नौकरी प्रशिक्षण के लिए पीएमकेवीवाई जैसी रोजगार योजनाएँ हैं। मुद्रा योजना छोटे व्यवसायों और उद्यमियों के लिए ऋण प्रदान करती है।";
+      } 
+      else if (lowerText.includes("महिला") || lowerText.includes("बच्चा") || lowerText.includes("बेटी") || lowerText.includes("women") || lowerText.includes("child") || lowerText.includes("लड़की")) {
+        responseText = "महिलाओं और बच्चों के लिए योजनाओं में बेटी बचाओ बेटी पढाओ और बालिका शिक्षा और कल्याण के लिए सुकन्या समृद्धि योजना शामिल हैं।";
+      } 
+      else if (lowerText.includes("योजना") || lowerText.includes("scheme") || lowerText.includes("government") || lowerText.includes("सरकार") || lowerText.includes("सरकारी")) {
+        responseText = "भारत सरकार द्वारा विभिन्न श्रेणियों में कई योजनाएँ प्रदान की जाती हैं। आप किस विशेष क्षेत्र में सहायता चाहते हैं?";
+      }
+      else {
         responseText = "मैं आपको स्वास्थ्य, शिक्षा, कृषि, आवास, रोजगार और महिला एवं बाल कल्याण जैसे क्षेत्रों में सरकारी योजनाएँ खोजने में मदद कर सकता हूँ। क्या आप बता सकते हैं कि आप किस क्षेत्र में रुचि रखते हैं?";
       }
-    } else if (currentLanguage === "bn") {
+    } 
+    else if (currentLanguage === "bn") {
+      // Bengali responses
       if (lowerText.includes("স্বাস্থ্য") || lowerText.includes("চিকিত্সা") || lowerText.includes("health")) {
         responseText = "আপনি আয়ুষ্মান ভারতের জন্য যোগ্য হতে পারেন যা প্রতি পরিবারকে প্রতি বছর ₹5 লক্ষ পর্যন্ত স্বাস্থ্য বীমা কভারেজ প্রদান করে। আপনি কি স্বাস্থ্য ��্রকল্পগুলি সম্পর্কে আরও জানতে চান?";
       } else if (lowerText.includes("শিক্ষা") || lowerText.includes("স্কুল") || lowerText.includes("কলেজ") || lowerText.includes("education")) {
@@ -132,8 +146,9 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
       } else {
         responseText = "আমি আপনাকে স্বাস্থ্য, শিক্ষা, কৃষি, আবাসন, কর্মসংস্থান এবং মহিলা ও শিশু কল্যাণের মতো বিভাগে সরকারি প্রকল্প খুঁজে পেতে সাহায্য করতে পারি। আপনি কোন ক্ষেত্রে আগ্রহী তা জানাতে পারেন?";
       }
-    } else {
-      // English responses (keeping existing responses)
+    } 
+    else {
+      // English responses
       if (lowerText.includes("health") || lowerText.includes("medical")) {
         responseText = "You may be eligible for Ayushman Bharat which provides health insurance coverage up to ₹5 lakh per family per year. Would you like to know more about health schemes?";
       } else if (lowerText.includes("education") || lowerText.includes("school") || lowerText.includes("college")) {
@@ -188,38 +203,66 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
       speech.pitch = 1;
       
       // Get available voices
-      const voices = window.speechSynthesis.getVoices();
-      if (voices.length > 0) {
-        // Try to find a voice that matches the language
-        const langVoices = voices.filter(voice => voice.lang.startsWith(
-          currentLanguage === "hi" ? "hi" : 
-          currentLanguage === "bn" ? "bn" : "en"
-        ));
-        
-        if (langVoices.length > 0) {
-          speech.voice = langVoices[0];
-          console.log(`Using voice: ${speech.voice.name} (${speech.voice.lang})`);
-        } else {
-          console.log(`No matching voice found for ${speech.lang}, using default voice`);
-        }
+      let voices = window.speechSynthesis.getVoices();
+      
+      // If voices array is empty, try waiting for voices to load
+      if (voices.length === 0) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          voices = window.speechSynthesis.getVoices();
+          setVoiceAndSpeak(voices, speech);
+        };
+      } else {
+        setVoiceAndSpeak(voices, speech);
       }
       
-      // Add event listener to log when speech starts
-      speech.onstart = () => {
-        console.log("Speech started");
-      };
-      
-      // Add event listener to log when speech ends
-      speech.onend = () => {
-        console.log("Speech ended");
-      };
-      
-      // Add event listener to log errors
-      speech.onerror = (event) => {
-        console.error("Speech error:", event);
-      };
-      
-      window.speechSynthesis.speak(speech);
+      function setVoiceAndSpeak(availableVoices: SpeechSynthesisVoice[], utterance: SpeechSynthesisUtterance) {
+        if (availableVoices.length > 0) {
+          // Try to find a voice that matches the language
+          const langPrefix = currentLanguage === "hi" ? "hi" : 
+                           currentLanguage === "bn" ? "bn" : "en";
+          
+          console.log(`Looking for voice with language prefix: ${langPrefix}`);
+          console.log("Available voices:", availableVoices.map(v => `${v.name} (${v.lang})`).join(", "));
+          
+          const langVoices = availableVoices.filter(voice => 
+            voice.lang.toLowerCase().startsWith(langPrefix.toLowerCase())
+          );
+          
+          if (langVoices.length > 0) {
+            utterance.voice = langVoices[0];
+            console.log(`Found matching voice: ${utterance.voice.name} (${utterance.voice.lang})`);
+          } else {
+            // If no exact match, try to find a voice from India
+            const indianVoices = availableVoices.filter(voice => 
+              voice.lang.endsWith("-IN")
+            );
+            
+            if (indianVoices.length > 0) {
+              utterance.voice = indianVoices[0];
+              console.log(`Found Indian voice: ${utterance.voice.name} (${utterance.voice.lang})`);
+            } else {
+              console.log(`No matching voice found for ${utterance.lang}, using default voice`);
+            }
+          }
+        }
+        
+        // Add event listener to log when speech starts
+        utterance.onstart = () => {
+          console.log("Speech started");
+        };
+        
+        // Add event listener to log when speech ends
+        utterance.onend = () => {
+          console.log("Speech ended");
+        };
+        
+        // Add event listener to log errors
+        utterance.onerror = (event) => {
+          console.error("Speech error:", event);
+        };
+        
+        window.speechSynthesis.speak(utterance);
+      }
     } else {
       toast({
         title: dictionary.notSupported || "Not supported",
@@ -248,7 +291,7 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
       const voices = window.speechSynthesis.getVoices();
       console.log(`Loaded ${voices.length} voices`);
       voices.forEach((voice, index) => {
-        if (index < 5) { // Log just the first 5 voices to avoid console clutter
+        if (index < 10) { // Log just the first 10 voices to avoid console clutter
           console.log(`Voice ${index}: ${voice.name} (${voice.lang})`);
         }
       });
