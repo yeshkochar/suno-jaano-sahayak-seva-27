@@ -1,16 +1,34 @@
 
 import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import L from "leaflet";
 
-// Default marker fix for Leaflet + Webpack
+// Fix default icon issues in Leaflet with webpack
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
   shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+});
+
+// Define marker icons
+const hospitalIcon = new L.Icon({
+  iconUrl: "https://unpkg.com/leaflet-color-markers@1.1.0/img/marker-icon-red.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+const govtIcon = new L.Icon({
+  iconUrl: "https://unpkg.com/leaflet-color-markers@1.1.0/img/marker-icon-blue.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
 });
 
 type MapProps = {
@@ -19,105 +37,91 @@ type MapProps = {
   zoom?: number;
 };
 
-const defaultPosition: [number, number] = [28.6448, 77.216721];
-
+// Data for map markers
 const hospitals = [
-  { lat: 28.6548, lng: 77.236721, name: "City General Hospital" },
-  { lat: 28.6248, lng: 77.201721, name: "Medical Center" },
+  { position: [28.6548, 77.236721] as [number, number], name: "City General Hospital" },
+  { position: [28.6248, 77.201721] as [number, number], name: "Medical Center" },
 ];
 
 const offices = [
-  { lat: 28.6348, lng: 77.226721, name: "Municipal Office" },
-  { lat: 28.6598, lng: 77.196721, name: "District Administration" },
+  { position: [28.6348, 77.226721] as [number, number], name: "Municipal Office" },
+  { position: [28.6598, 77.196721] as [number, number], name: "District Administration" },
 ];
 
-const UserLocationMarker: React.FC = () => {
+// Component to get and show user location
+function UserLocationMarker() {
   const [position, setPosition] = useState<[number, number] | null>(null);
   const map = useMap();
 
   useEffect(() => {
     if (!navigator.geolocation) return;
+    
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const userPos: [number, number] = [pos.coords.latitude, pos.coords.longitude];
         setPosition(userPos);
         map.setView(userPos, 13);
       },
-      () => {}
+      () => {
+        console.log("Could not get user location");
+      }
     );
   }, [map]);
 
-  return position === null ? null : (
+  if (!position) return null;
+  
+  return (
     <Marker position={position}>
       <Popup>You are here!</Popup>
     </Marker>
   );
-};
+}
 
 const Map: React.FC<MapProps> = ({
-  lng = defaultPosition[1],
-  lat = defaultPosition[0],
+  lat = 28.6448,
+  lng = 77.216721,
   zoom = 11,
 }) => {
-  const mapPoints = [
-    ...hospitals.map((h) => ({
-      ...h,
-      type: "hospital" as const,
-      position: [h.lat, h.lng] as [number, number],
-    })),
-    ...offices.map((o) => ({
-      ...o,
-      type: "govt" as const,
-      position: [o.lat, o.lng] as [number, number],
-    })),
-  ];
-
-  const center: [number, number] = [lat, lng];
-
+  // Default center position
+  const defaultPosition: [number, number] = [lat, lng];
+  
   return (
     <div className="relative w-full h-96 rounded-lg overflow-hidden bg-gray-100">
       <MapContainer
-        center={center}
+        style={{ height: '100%', width: '100%' }}
+        center={defaultPosition}
         zoom={zoom}
-        className="absolute inset-0 w-full h-full z-0"
         scrollWheelZoom={true}
-        style={{ minHeight: 384, width: '100%' }}
       >
         <TileLayer
-          attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-          url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png"
+          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
+        
         <UserLocationMarker />
-        {mapPoints.map((point, idx) => (
-          <Marker
-            key={idx}
-            position={point.position}
-            icon={
-              point.type === 'hospital'
-                ? new L.Icon({
-                    iconUrl: "https://unpkg.com/leaflet-color-markers@1.1.0/img/marker-icon-red.png",
-                    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-                    iconSize: [25, 41],
-                    iconAnchor: [12, 41],
-                    popupAnchor: [1, -34],
-                    shadowSize: [41, 41],
-                  })
-                : new L.Icon({
-                    iconUrl: "https://unpkg.com/leaflet-color-markers@1.1.0/img/marker-icon-blue.png",
-                    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-                    iconSize: [25, 41],
-                    iconAnchor: [12, 41],
-                    popupAnchor: [1, -34],
-                    shadowSize: [41, 41],
-                  })
-            }
+        
+        {/* Hospital markers */}
+        {hospitals.map((hospital, index) => (
+          <Marker 
+            key={`hospital-${index}`} 
+            position={hospital.position}
+            icon={hospitalIcon}
           >
             <Popup>
-              <strong>{point.name}</strong>
-              <br />
-              {point.type === "hospital"
-                ? "Hospital"
-                : "Government Office"}
+              <strong>{hospital.name}</strong><br />Hospital
+            </Popup>
+          </Marker>
+        ))}
+        
+        {/* Government office markers */}
+        {offices.map((office, index) => (
+          <Marker 
+            key={`office-${index}`} 
+            position={office.position}
+            icon={govtIcon}
+          >
+            <Popup>
+              <strong>{office.name}</strong><br />Government Office
             </Popup>
           </Marker>
         ))}
