@@ -27,18 +27,23 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
         recognitionRef.current = new SpeechRecognition();
         recognitionRef.current.continuous = true;
         recognitionRef.current.interimResults = true;
+        
+        // Set language based on current language selection
         recognitionRef.current.lang = currentLanguage === "hi" ? "hi-IN" : 
                                       currentLanguage === "bn" ? "bn-IN" : "en-IN";
+        
+        console.log(`Speech recognition initialized with language: ${recognitionRef.current.lang}`);
         
         recognitionRef.current.onresult = (event: any) => {
           const current = event.resultIndex;
           const transcriptText = event.results[current][0].transcript;
           setTranscript(transcriptText);
           
-          // Generate response for final results or after a short delay
-          if (event.results[current].isFinal) {
-            generateResponse(transcriptText);
-          }
+          console.log(`Speech recognized: "${transcriptText}"`);
+          console.log(`Is final: ${event.results[current].isFinal}`);
+          
+          // Generate response for all results, not just final ones
+          generateResponse(transcriptText);
         };
         
         recognitionRef.current.onerror = (event: any) => {
@@ -53,6 +58,7 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
         
         recognitionRef.current.onend = () => {
           setIsListening(false);
+          console.log("Speech recognition ended");
         };
       } else {
         toast({
@@ -78,6 +84,7 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
       setTranscript("");
       recognitionRef.current?.start();
       setIsListening(true);
+      console.log("Started listening");
     }
   };
   
@@ -86,7 +93,7 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
     const lowerText = text.toLowerCase();
     let responseText = "";
     
-    console.log("Generating response for:", currentLanguage, lowerText);
+    console.log(`Generating response for language: ${currentLanguage}, text: "${lowerText}"`);
     
     // Use different responses based on the current language
     if (currentLanguage === "hi") {
@@ -102,6 +109,10 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
         responseText = "कौशल विकास और नौकरी प्रशिक्षण के लिए पीएमकेवीवाई जैसी रोजगार योजनाएँ हैं। मुद्रा योजना छोटे व्यवसायों और उद्यमियों के लिए ऋण प्रदान करती है।";
       } else if (lowerText.includes("महिला") || lowerText.includes("बच्चा") || lowerText.includes("बेटी") || lowerText.includes("women") || lowerText.includes("child")) {
         responseText = "महिलाओं और बच्चों के लिए योजनाओं में बेटी बचाओ बेटी पढाओ और बालिका शिक्षा और कल्याण के लिए सुकन्या समृद्धि योजना शामिल हैं।";
+      } else if (lowerText.includes("योजना") || lowerText.includes("scheme") || lowerText.includes("government")) {
+        responseText = "भारत सरकार द्वारा विभिन्न श्रेणियों में कई योजनाएँ प्रदान की जाती हैं। आप किस विशेष क्षेत्र में सहायता चाहते हैं?";
+      } else if (lowerText.includes("हेलो") || lowerText.includes("नमस्ते") || lowerText.includes("hi") || lowerText.includes("hello")) {
+        responseText = "नमस्ते! मैं आपकी सरकारी योजनाओं के बारे में जानकारी पाने में मदद कर सकता हूँ। आप किस तरह की योजनाओं के बारे में जानना चाहते हैं?";
       } else {
         responseText = "मैं आपको स्वास्थ्य, शिक्षा, कृषि, आवास, रोजगार और महिला एवं बाल कल्याण जैसे क्षेत्रों में सरकारी योजनाएँ खोजने में मदद कर सकता हूँ। क्या आप बता सकते हैं कि आप किस क्षेत्र में रुचि रखते हैं?";
       }
@@ -165,11 +176,33 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
       
       const speech = new SpeechSynthesisUtterance();
       speech.text = text;
+      
+      // Set language for speech synthesis based on the current language
       speech.lang = currentLanguage === "hi" ? "hi-IN" : 
                     currentLanguage === "bn" ? "bn-IN" : "en-US";
+      
+      console.log(`Using speech synthesis with language: ${speech.lang}`);
+      
       speech.volume = 1;
       speech.rate = 0.9;
       speech.pitch = 1;
+      
+      // Get available voices
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        // Try to find a voice that matches the language
+        const langVoices = voices.filter(voice => voice.lang.startsWith(
+          currentLanguage === "hi" ? "hi" : 
+          currentLanguage === "bn" ? "bn" : "en"
+        ));
+        
+        if (langVoices.length > 0) {
+          speech.voice = langVoices[0];
+          console.log(`Using voice: ${speech.voice.name} (${speech.voice.lang})`);
+        } else {
+          console.log(`No matching voice found for ${speech.lang}, using default voice`);
+        }
+      }
       
       // Add event listener to log when speech starts
       speech.onstart = () => {
@@ -207,6 +240,28 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
       });
     }
   };
+  
+  // Use the loaded voices when the page loads
+  useEffect(() => {
+    // Wait for voices to be loaded
+    const handleVoicesChanged = () => {
+      const voices = window.speechSynthesis.getVoices();
+      console.log(`Loaded ${voices.length} voices`);
+      voices.forEach((voice, index) => {
+        if (index < 5) { // Log just the first 5 voices to avoid console clutter
+          console.log(`Voice ${index}: ${voice.name} (${voice.lang})`);
+        }
+      });
+    };
+    
+    if ('speechSynthesis' in window) {
+      // Chrome loads voices asynchronously
+      window.speechSynthesis.onvoiceschanged = handleVoicesChanged;
+      
+      // For browsers that already have the voices loaded
+      handleVoicesChanged();
+    }
+  }, []);
   
   return (
     <>
