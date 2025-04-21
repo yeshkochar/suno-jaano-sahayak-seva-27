@@ -32,11 +32,11 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
         
         recognitionRef.current.onresult = (event: any) => {
           const current = event.resultIndex;
+          const transcriptText = event.results[current][0].transcript;
+          setTranscript(transcriptText);
+          
+          // Generate response for final results or after a short delay
           if (event.results[current].isFinal) {
-            const transcriptText = event.results[current][0].transcript;
-            setTranscript(transcriptText);
-            
-            // Mock response based on transcript
             generateResponse(transcriptText);
           }
         };
@@ -86,6 +86,8 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
     const lowerText = text.toLowerCase();
     let responseText = "";
     
+    console.log("Generating response for:", currentLanguage, lowerText);
+    
     // Use different responses based on the current language
     if (currentLanguage === "hi") {
       if (lowerText.includes("स्वास्थ्य") || lowerText.includes("चिकित्सा") || lowerText.includes("health")) {
@@ -104,8 +106,8 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
         responseText = "मैं आपको स्वास्थ्य, शिक्षा, कृषि, आवास, रोजगार और महिला एवं बाल कल्याण जैसे क्षेत्रों में सरकारी योजनाएँ खोजने में मदद कर सकता हूँ। क्या आप बता सकते हैं कि आप किस क्षेत्र में रुचि रखते हैं?";
       }
     } else if (currentLanguage === "bn") {
-      if (lowerText.includes("স্বাস্থ্য") || lowerText.includes("চিকিৎসা") || lowerText.includes("health")) {
-        responseText = "আপনি আয়ুষ্মান ভারতের জন্য যোগ্য হতে পারেন যা প্রতি পরিবারকে প্রতি বছর ₹5 লক্ষ পর্যন্ত স্বাস্থ্য বীমা কভারেজ প্রদান করে। আপনি কি স্বাস্থ্য প্রকল্পগুলি সম্পর্কে আরও জানতে চান?";
+      if (lowerText.includes("স্বাস্থ্য") || lowerText.includes("চিকিত্সা") || lowerText.includes("health")) {
+        responseText = "আপনি আয়ুষ্মান ভারতের জন্য যোগ্য হতে পারেন যা প্রতি পরিবারকে প্রতি বছর ₹5 লক্ষ পর্যন্ত স্বাস্থ্য বীমা কভারেজ প্রদান করে। আপনি কি স্বাস্থ্য ��্রকল্পগুলি সম্পর্কে আরও জানতে চান?";
       } else if (lowerText.includes("শিক্ষা") || lowerText.includes("স্কুল") || lowerText.includes("কলেজ") || lowerText.includes("education")) {
         responseText = "ছাত্রদের জন্য বৃত্তির মতো বেশ কয়েকটি শিক্ষা প্রকল্প রয়েছে। পিএম বিদ্যা প্রকল্প উচ্চ শিক্ষার জন্য আর্থিক সহায়তা প্রদান করে। আপনি কি আরও জানতে চান?";
       } else if (lowerText.includes("কৃষক") || lowerText.includes("কৃষি") || lowerText.includes("চাষ") || lowerText.includes("farmer")) {
@@ -138,12 +140,29 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
       }
     }
     
-    setResponse(responseText);
-    speakResponse(responseText);
+    console.log("Generated response:", responseText);
+    
+    if (responseText) {
+      setResponse(responseText);
+      speakResponse(responseText);
+    } else {
+      // Fallback response if no keyword match
+      const fallbackResponse = currentLanguage === "hi" 
+        ? "मुझे क्षमा करें, मैं आपके प्रश्न को समझ नहीं पाया। कृपया स्वास्थ्य, शिक्षा, कृषि, आवास, रोजगार या महिला एवं बाल कल्याण जैसे विषयों के बारे में पूछें।"
+        : currentLanguage === "bn" 
+        ? "দুঃখিত, আমি আপনার প্রশ্ন বুঝতে পারিনি। অনুগ্রহ করে স্বাস্থ্য, শিক্ষা, কৃষি, আবাসন, কর্মসংস্থান বা মহিলা ও শিশু কল্যাণ সম্পর্কে প্রশ্ন করুন।"
+        : "I'm sorry, I didn't understand your question. Please ask about topics like health, education, agriculture, housing, employment, or women & child welfare.";
+      
+      setResponse(fallbackResponse);
+      speakResponse(fallbackResponse);
+    }
   };
   
   const speakResponse = (text: string) => {
     if ('speechSynthesis' in window) {
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+      
       const speech = new SpeechSynthesisUtterance();
       speech.text = text;
       speech.lang = currentLanguage === "hi" ? "hi-IN" : 
@@ -151,6 +170,21 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
       speech.volume = 1;
       speech.rate = 0.9;
       speech.pitch = 1;
+      
+      // Add event listener to log when speech starts
+      speech.onstart = () => {
+        console.log("Speech started");
+      };
+      
+      // Add event listener to log when speech ends
+      speech.onend = () => {
+        console.log("Speech ended");
+      };
+      
+      // Add event listener to log errors
+      speech.onerror = (event) => {
+        console.error("Speech error:", event);
+      };
       
       window.speechSynthesis.speak(speech);
     } else {
