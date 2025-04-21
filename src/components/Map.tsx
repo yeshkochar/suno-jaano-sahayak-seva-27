@@ -1,8 +1,8 @@
 
 import React, { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
 // Default marker fix for Leaflet + Webpack
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -19,7 +19,7 @@ type MapProps = {
   zoom?: number;
 };
 
-const defaultPosition = { lat: 28.6448, lng: 77.216721 };
+const defaultPosition: [number, number] = [28.6448, 77.216721];
 
 const hospitals = [
   { lat: 28.6548, lng: 77.236721, name: "City General Hospital" },
@@ -32,14 +32,14 @@ const offices = [
 ];
 
 const UserLocationMarker: React.FC = () => {
-  const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
+  const [position, setPosition] = useState<[number, number] | null>(null);
   const map = useMap();
 
   useEffect(() => {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        const userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        const userPos: [number, number] = [pos.coords.latitude, pos.coords.longitude];
         setPosition(userPos);
         map.setView(userPos, 13);
       },
@@ -47,40 +47,37 @@ const UserLocationMarker: React.FC = () => {
     );
   }, [map]);
 
-  return (
-    <>
-      {position && (
-        <>
-          <Marker position={position}>
-            <Popup>You are here!</Popup>
-          </Marker>
-          <Circle center={position} radius={400} color="blue" fillOpacity={0.08} />
-        </>
-      )}
-    </>
+  return position === null ? null : (
+    <Marker position={position}>
+      <Popup>You are here!</Popup>
+    </Marker>
   );
 };
 
 const Map: React.FC<MapProps> = ({
-  lng = defaultPosition.lng,
-  lat = defaultPosition.lat,
+  lng = defaultPosition[1],
+  lat = defaultPosition[0],
   zoom = 11,
 }) => {
   const mapPoints = [
     ...hospitals.map((h) => ({
       ...h,
       type: "hospital" as const,
+      position: [h.lat, h.lng] as [number, number],
     })),
-    ...offices.map((g) => ({
-      ...g,
+    ...offices.map((o) => ({
+      ...o,
       type: "govt" as const,
+      position: [o.lat, o.lng] as [number, number],
     })),
   ];
+
+  const center: [number, number] = [lat, lng];
 
   return (
     <div className="relative w-full h-96 rounded-lg overflow-hidden bg-gray-100">
       <MapContainer
-        center={[lat, lng]}
+        center={center}
         zoom={zoom}
         className="absolute inset-0 w-full h-full z-0"
         scrollWheelZoom={true}
@@ -94,7 +91,7 @@ const Map: React.FC<MapProps> = ({
         {mapPoints.map((point, idx) => (
           <Marker
             key={idx}
-            position={[point.lat, point.lng]}
+            position={point.position}
             icon={
               point.type === 'hospital'
                 ? new L.Icon({
