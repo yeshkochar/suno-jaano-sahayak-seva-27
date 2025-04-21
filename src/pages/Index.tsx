@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { Header } from "@/components/Header";
 import { VoiceAssistant } from "@/components/VoiceAssistant";
@@ -9,10 +8,12 @@ import { dictionaries } from "@/lib/dictionaries";
 import { Button } from "@/components/ui/button";
 import { Mic, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import Map from "@/components/Map";
 
 const Index = () => {
   const [currentLanguage, setCurrentLanguage] = useState("en");
   const [showVoiceAssistantDialog, setShowVoiceAssistantDialog] = useState(false);
+  const [showMap, setShowMap] = useState(false);
   const eligibilityRef = useRef<HTMLDivElement>(null);
   const dictionary = dictionaries[currentLanguage] || dictionaries.en;
   const { toast } = useToast();
@@ -69,12 +70,20 @@ const Index = () => {
                 <Mic className="mr-2 h-4 w-4" />
                 {dictionary.heroVoice}
               </Button>
+              <Button
+                variant="outline"
+                className="border-desi-green/30 text-desi-green hover:bg-desi-green/10"
+                size="lg"
+                onClick={() => setShowMap(true)}
+              >
+                Nearby Hospitals & Govt. Offices
+              </Button>
             </div>
           </div>
         </div>
         
         {/* Decorative pattern */}
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNCODgxRkMiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0aDR2MWgtNHYtMXptMCA0aDR2MWgtNHYtMXptMCA0aDR2MWgtNHYtMXptMCA0aDR2MWgtNHYtMXptMCA0aDR2MWgtNHYtMXptMCA0aDR2MWgtNHYtMXpNMTQgMzRoNHYxaC00di0xem0wIDRoNHYxaC00di0xem0wIDRoNHYxaC00di0xem0wIDRoNHYxaC00di0xem0wIDRoNHYxaC00di0xem0wIDRoNHYxaC00di0xeiIvPjwvZz48L2c+PC9zdmc+')]" />
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNCODgxRkMiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0aDR2MWgtNHYtMXptMCA0aDR2MWgtNHYtMXptMCA0aDR2MWgtNHYtMXptMCA0aDR2MWgtNHYtMXptMCA0aDR2MWgtNHYtMXptMCA0aDR2MWgtNHYtMXpNMTQgMzRoNHYxaC00di0xem0wIDRoNHYxaC00di0xem0wIDRoNHYxaC00di0xem0wIDRoNHYxaC00di0xem0wIDRoNHYxaC00di0xeiIvPjwvZz48L2c+PC9zdmc+')]" />
       </div>
       
       {/* Categories Section */}
@@ -176,6 +185,27 @@ const Index = () => {
         dictionary={dictionary}
         currentLanguage={currentLanguage}
       />
+      
+      {showMap && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl max-w-2xl w-full mx-4 relative">
+            <button
+              className="absolute top-3 right-3 z-10 p-2 rounded-full hover:bg-gray-100"
+              aria-label="Close map"
+              onClick={() => setShowMap(false)}
+            >✕</button>
+            <div className="p-4">
+              <h3 className="text-lg font-bold mb-2 text-desi-textDark">
+                Find Nearby Hospitals & Government Offices
+              </h3>
+              <Map />
+              <p className="mt-3 text-sm text-gray-500">
+                Location is approximate. For navigation, tap on markers or use your map app.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
