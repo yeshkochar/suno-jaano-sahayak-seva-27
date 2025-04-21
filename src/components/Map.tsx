@@ -1,11 +1,17 @@
 
-import React, { useEffect, useRef, useState } from 'react';
-// @ts-ignore
-import mapboxgl from 'mapbox-gl/dist/mapbox-gl.js';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import React, { useEffect, useState } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+
+// Default marker fix for Leaflet + Webpack
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+});
 
 type MapProps = {
   lng?: number;
@@ -13,121 +19,112 @@ type MapProps = {
   zoom?: number;
 };
 
-const Map: React.FC<MapProps> = ({
-  lng = 77.216721,
-  lat = 28.6448,
-  zoom = 10,
-}) => {
-  const mapNode = useRef<HTMLDivElement>(null);
-  const [mapboxToken, setMapboxToken] = useState<string>(() => {
-    return localStorage.getItem('mapbox_token') || '';
-  });
-  const [showTokenDialog, setShowTokenDialog] = useState(!localStorage.getItem('mapbox_token'));
-  const [map, setMap] = useState<mapboxgl.Map | null>(null);
+const defaultPosition = { lat: 28.6448, lng: 77.216721 };
 
-  const initializeMap = () => {
-    if (!mapNode.current || !mapboxToken) return;
-    
-    mapboxgl.accessToken = mapboxToken;
+const hospitals = [
+  { lat: 28.6548, lng: 77.236721, name: "City General Hospital" },
+  { lat: 28.6248, lng: 77.201721, name: "Medical Center" },
+];
 
-    try {
-      const newMap = new mapboxgl.Map({
-        container: mapNode.current,
-        style: 'mapbox://styles/mapbox/streets-v12',
-        center: [lng, lat],
-        zoom,
-      });
+const offices = [
+  { lat: 28.6348, lng: 77.226721, name: "Municipal Office" },
+  { lat: 28.6598, lng: 77.196721, name: "District Administration" },
+];
 
-      // Add controls
-      newMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
-
-      // Add user location if supported
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((pos) => {
-          const { latitude, longitude } = pos.coords;
-          new mapboxgl.Marker({ color: "blue" })
-            .setLngLat([longitude, latitude])
-            .setPopup(new mapboxgl.Popup().setText("You are here!"))
-            .addTo(newMap);
-          newMap.flyTo({ center: [longitude, latitude], zoom: 13 });
-        });
-      }
-
-      // Add sample points for hospitals and government offices
-      const samplePoints = [
-        { type: 'hospital', name: 'City General Hospital', lng: lng + 0.02, lat: lat + 0.01 },
-        { type: 'hospital', name: 'Medical Center', lng: lng - 0.015, lat: lat - 0.02 },
-        { type: 'govt', name: 'Municipal Office', lng: lng + 0.01, lat: lat - 0.01 },
-        { type: 'govt', name: 'District Administration', lng: lng - 0.02, lat: lat + 0.015 }
-      ];
-
-      samplePoints.forEach(point => {
-        const color = point.type === 'hospital' ? "#FF5757" : "#4A7CFF";
-        new mapboxgl.Marker({ color })
-          .setLngLat([point.lng, point.lat])
-          .setPopup(new mapboxgl.Popup().setHTML(`<strong>${point.name}</strong><br/>${point.type === 'hospital' ? 'Hospital' : 'Government Office'}`))
-          .addTo(newMap);
-      });
-
-      setMap(newMap);
-    } catch (error) {
-      console.error("Error initializing map:", error);
-      // Invalid token, clear it and show dialog
-      if (error instanceof Error && error.message.includes('API key')) {
-        localStorage.removeItem('mapbox_token');
-        setShowTokenDialog(true);
-      }
-    }
-  };
+const UserLocationMarker: React.FC = () => {
+  const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
+  const map = useMap();
 
   useEffect(() => {
-    if (mapboxToken) {
-      initializeMap();
-    }
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setPosition(userPos);
+        map.setView(userPos, 13);
+      },
+      () => {}
+    );
+  }, [map]);
 
-    return () => {
-      if (map) map.remove();
-    };
-  }, [mapboxToken]);
+  return (
+    <>
+      {position && (
+        <>
+          <Marker position={position}>
+            <Popup>You are here!</Popup>
+          </Marker>
+          <Circle center={position} radius={400} color="blue" fillOpacity={0.08} />
+        </>
+      )}
+    </>
+  );
+};
 
-  const handleSaveToken = () => {
-    localStorage.setItem('mapbox_token', mapboxToken);
-    setShowTokenDialog(false);
-    // Reinitialize map with the new token
-    if (map) map.remove();
-    initializeMap();
-  };
+const Map: React.FC<MapProps> = ({
+  lng = defaultPosition.lng,
+  lat = defaultPosition.lat,
+  zoom = 11,
+}) => {
+  const mapPoints = [
+    ...hospitals.map((h) => ({
+      ...h,
+      type: "hospital" as const,
+    })),
+    ...offices.map((g) => ({
+      ...g,
+      type: "govt" as const,
+    })),
+  ];
 
   return (
     <div className="relative w-full h-96 rounded-lg overflow-hidden bg-gray-100">
-      <div ref={mapNode} className="absolute inset-0" />
-      
-      {!mapboxToken && (
-        <div className="absolute inset-0 flex items-center justify-center z-10 bg-white/80 text-red-600 font-semibold">
-          Please set your Mapbox public token
-        </div>
-      )}
-
-      <Dialog open={showTokenDialog} onOpenChange={setShowTokenDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Enter your Mapbox Public Token</DialogTitle>
-            <DialogDescription>
-              To use the map functionality, you need to enter your Mapbox public token. 
-              You can create one for free at <a href="https://mapbox.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">mapbox.com</a>.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 pt-4">
-            <Input
-              value={mapboxToken}
-              onChange={(e) => setMapboxToken(e.target.value)}
-              placeholder="Enter your Mapbox public token"
-              className="w-full"
-            />
-            <Button onClick={handleSaveToken} className="w-full">Save Token</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <MapContainer
+        center={[lat, lng]}
+        zoom={zoom}
+        className="absolute inset-0 w-full h-full z-0"
+        scrollWheelZoom={true}
+        style={{ minHeight: 384, width: '100%' }}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+          url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png"
+        />
+        <UserLocationMarker />
+        {mapPoints.map((point, idx) => (
+          <Marker
+            key={idx}
+            position={[point.lat, point.lng]}
+            icon={
+              point.type === 'hospital'
+                ? new L.Icon({
+                    iconUrl: "https://unpkg.com/leaflet-color-markers@1.1.0/img/marker-icon-red.png",
+                    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41],
+                  })
+                : new L.Icon({
+                    iconUrl: "https://unpkg.com/leaflet-color-markers@1.1.0/img/marker-icon-blue.png",
+                    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41],
+                  })
+            }
+          >
+            <Popup>
+              <strong>{point.name}</strong>
+              <br />
+              {point.type === "hospital"
+                ? "Hospital"
+                : "Government Office"}
+            </Popup>
+          </Marker>
+        ))}
+      </MapContainer>
     </div>
   );
 };
