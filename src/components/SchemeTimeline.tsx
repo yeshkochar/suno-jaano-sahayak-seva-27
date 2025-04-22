@@ -1,9 +1,8 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Timer, Volume2, Play, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 interface TimelineEvent {
@@ -103,9 +102,23 @@ export function SchemeTimeline({ dictionary }: SchemeTimelineProps) {
   const [playingReviewId, setPlayingReviewId] = useState<string | null>(null);
   const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
   const { toast } = useToast();
-
-  // Clean up speech synthesis when component unmounts
+  const availableVoicesRef = useRef<SpeechSynthesisVoice[]>([]);
+  
   useEffect(() => {
+    const initVoices = () => {
+      if (window.speechSynthesis) {
+        const voices = window.speechSynthesis.getVoices();
+        availableVoicesRef.current = voices;
+        console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`));
+      }
+    };
+    
+    initVoices();
+    
+    if (window.speechSynthesis) {
+      window.speechSynthesis.onvoiceschanged = initVoices;
+    }
+    
     return () => {
       if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
@@ -126,8 +139,28 @@ export function SchemeTimeline({ dictionary }: SchemeTimelineProps) {
     }
   };
 
+  const getBestVoiceForLanguage = (langCode: string): SpeechSynthesisVoice | null => {
+    if (!window.speechSynthesis || availableVoicesRef.current.length === 0) {
+      return null;
+    }
+    
+    const exactMatch = availableVoicesRef.current.find(voice => 
+      voice.lang.toLowerCase() === langCode.toLowerCase()
+    );
+    
+    if (exactMatch) return exactMatch;
+    
+    const langPrefix = langCode.split('-')[0].toLowerCase();
+    const partialMatch = availableVoicesRef.current.find(voice => 
+      voice.lang.toLowerCase().startsWith(langPrefix)
+    );
+    
+    if (partialMatch) return partialMatch;
+    
+    return null;
+  };
+
   const playVoiceReview = (review: VoiceReview) => {
-    // If no speech synthesis is available, show a toast message
     if (!window.speechSynthesis) {
       toast({
         title: "Speech synthesis not supported",
@@ -137,7 +170,6 @@ export function SchemeTimeline({ dictionary }: SchemeTimelineProps) {
       return;
     }
 
-    // If this review is already playing, stop it
     if (playingReviewId === review.id) {
       window.speechSynthesis.cancel();
       setPlayingReviewId(null);
@@ -145,17 +177,25 @@ export function SchemeTimeline({ dictionary }: SchemeTimelineProps) {
       return;
     }
 
-    // If another review is playing, stop it first
     if (playingReviewId) {
       window.speechSynthesis.cancel();
     }
 
     try {
       const utterance = new SpeechSynthesisUtterance(review.reviewText);
+      
       utterance.lang = review.language;
+      
+      const bestVoice = getBestVoiceForLanguage(review.language);
+      if (bestVoice) {
+        utterance.voice = bestVoice;
+        console.log(`Selected voice: ${bestVoice.name} (${bestVoice.lang}) for language ${review.language}`);
+      } else {
+        console.log(`No specific voice found for ${review.language}, using default`);
+      }
+      
       utterance.rate = 0.9;
 
-      // Set up event handlers
       utterance.onend = () => {
         setPlayingReviewId(null);
         setCurrentUtterance(null);
@@ -172,17 +212,15 @@ export function SchemeTimeline({ dictionary }: SchemeTimelineProps) {
         setCurrentUtterance(null);
       };
 
-      // Store the utterance and set the playing state
       setCurrentUtterance(utterance);
       setPlayingReviewId(review.id);
       
-      // Play the speech
       window.speechSynthesis.speak(utterance);
       
-      // Show toast for feedback
+      const langName = review.language.split('-')[0].toUpperCase();
       toast({
         title: "Playing review",
-        description: `Playing ${review.userName}'s review in ${review.language.split('-')[0]}`,
+        description: `Playing ${review.userName}'s review in ${langName}`,
       });
     } catch (error) {
       console.error("Speech synthesis error:", error);
