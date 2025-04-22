@@ -80,17 +80,17 @@ const sampleVoiceReviews: VoiceReview[] = [
   },
   {
     id: "review-2",
-    userName: "பிரியா சர்மா",
-    schemeName: "அவாஸ் யோஜனா",
-    reviewText: "அவாஸ் யோஜனா திட்டத்தின் மூலம் எனது குடும்பத்திற்கு ஒரு சரியான வீடு கிடைத்தது. இந்தத் திட்டம் எங்கள் வாழ்க்கையை மாற்றியுள்ளது.",
-    language: "ta-IN"
+    userName: "Sarah Williams",
+    schemeName: "PM Awas Yojana",
+    reviewText: "The Awas Yojana scheme provided my family with proper housing. The application process was straightforward and the financial assistance has truly transformed our lives for the better.",
+    language: "en-US"
   },
   {
     id: "review-3",
-    userName: "અમિત પટેલ",
+    userName: "অমিত ঘোষ",
     schemeName: "PM-KISAN",
-    reviewText: "PM-KISAN ની ત્રૈમાસિક હપ્તાની રકમે મને મારી કૃષિ જરૂરિયાતો માટે સ્થિર રોકડ પ્રવાહ જાળવવામાં મદદ કરી.",
-    language: "gu-IN"
+    reviewText: "পিএম-কিষাণ প্রকল্প থেকে পাওয়া ত্রৈমাসিক অর্থ সাহায্য আমাকে কৃষি চাহিদা মেটাতে সাহায্য করেছে। এই অর্থ সাহায্য ছাড়া আমি সময়মত চাষ করতে পারতাম না।",
+    language: "bn-IN"
   }
 ];
 
@@ -148,15 +148,22 @@ export function SchemeTimeline({ dictionary }: SchemeTimelineProps) {
       voice.lang.toLowerCase() === langCode.toLowerCase()
     );
     
-    if (exactMatch) return exactMatch;
+    if (exactMatch) {
+      console.log(`Found exact match for ${langCode}: ${exactMatch.name}`);
+      return exactMatch;
+    }
     
     const langPrefix = langCode.split('-')[0].toLowerCase();
     const partialMatch = availableVoicesRef.current.find(voice => 
       voice.lang.toLowerCase().startsWith(langPrefix)
     );
     
-    if (partialMatch) return partialMatch;
+    if (partialMatch) {
+      console.log(`Found partial match for ${langCode}: ${partialMatch.name} (${partialMatch.lang})`);
+      return partialMatch;
+    }
     
+    console.log(`No voice found for ${langCode}, falling back to default voice`);
     return null;
   };
 
@@ -191,7 +198,7 @@ export function SchemeTimeline({ dictionary }: SchemeTimelineProps) {
         utterance.voice = bestVoice;
         console.log(`Selected voice: ${bestVoice.name} (${bestVoice.lang}) for language ${review.language}`);
       } else {
-        console.log(`No specific voice found for ${review.language}, using default`);
+        console.log(`No specific voice found for ${review.language}, using default voice`);
       }
       
       utterance.rate = 0.9;
@@ -217,7 +224,21 @@ export function SchemeTimeline({ dictionary }: SchemeTimelineProps) {
       
       window.speechSynthesis.speak(utterance);
       
-      const langName = review.language.split('-')[0].toUpperCase();
+      let langName;
+      switch (review.language) {
+        case "hi-IN":
+          langName = "Hindi";
+          break;
+        case "bn-IN":
+          langName = "Bengali";
+          break;
+        case "en-US":
+          langName = "English";
+          break;
+        default:
+          langName = review.language.split('-')[0].toUpperCase();
+      }
+      
       toast({
         title: "Playing review",
         description: `Playing ${review.userName}'s review in ${langName}`,
