@@ -35,6 +35,7 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
         recognitionRef.current.continuous = true;
         recognitionRef.current.interimResults = true;
         
+        // Setting language code - ensure proper Punjabi recognition
         recognitionRef.current.lang = currentLanguage === "hi" ? "hi-IN" : 
                                     currentLanguage === "bn" ? "bn-IN" :
                                     currentLanguage === "ml" ? "ml-IN" :
@@ -137,29 +138,33 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
       }
     }
     else if (currentLanguage === "pa") {
-      if (lowerText.includes("ਸਤ ਸ੍ਰੀ ਅਕਾਲ") || lowerText.includes("ਹੈਲੋ") || lowerText.includes("hello") || lowerText.includes("hi")) {
+      // Enhanced Punjabi language support with more keywords and variations
+      if (lowerText.includes("ਸਤ ਸ੍ਰੀ ਅਕਾਲ") || lowerText.includes("ਹੈਲੋ") || lowerText.includes("hello") || lowerText.includes("hi") || lowerText.includes("sat sri akal") || lowerText.includes("namaste") || lowerText.includes("ਨਮਸਤੇ")) {
         responseText = "ਸਤ ਸ੍ਰੀ ਅਕਾਲ! ਮੈਂ ਤੁਹਾਨੂੰ ਸਰਕਾਰੀ ਯੋਜਨਾਵਾਂ ਬਾਰੇ ਜਾਣਨ ਵਿੱਚ ਮਦਦ ਕਰ ਸਕਦਾ/ਸਕਦੀ ਹਾਂ। ਤੁਸੀਂ ਕਿਸ ਤਰ੍ਹਾਂ ਦੀਆਂ ਯੋਜਨਾਵਾਂ ਬਾਰੇ ਜਾਣਨਾ ਚਾਹੁੰਦੇ ਹੋ?";
       }
-      else if (lowerText.includes("ਸਿਹਤ") || lowerText.includes("ਮੈਡੀਕਲ") || lowerText.includes("ਹਸਪਤਾਲ") || lowerText.includes("ਡਾਕਟਰ") || lowerText.includes("health") || lowerText.includes("medical")) {
+      else if (lowerText.includes("ਸਿਹਤ") || lowerText.includes("ਮੈਡੀਕਲ") || lowerText.includes("ਹਸਪਤਾਲ") || lowerText.includes("ਡਾਕਟਰ") || lowerText.includes("health") || lowerText.includes("medical") || lowerText.includes("hospital") || lowerText.includes("doctor") || lowerText.includes("sehat") || lowerText.includes("dawai") || lowerText.includes("ਦਵਾਈ")) {
         responseText = "ਇੱਕ ਸਿਹਤ ਯੋਜਨਾ ਵਜੋਂ, ਤੁਸੀਂ ਆਯੂਸ਼ਮਾਨ ਭਾਰਤ ਲਈ ਯੋਗ ਹੋ ਸਕਦੇ ਹੋ ਜੋ ਪ੍ਰਤੀ ਪਰਿਵਾਰ ਪ੍ਰਤੀ ਸਾਲ 5 ਲੱਖ ਰੁਪਏ ਤੱਕ ਦਾ ਸਿਹਤ ਬੀਮਾ ਕਵਰੇਜ ਪ੍ਰਦਾਨ ਕਰਦਾ ਹੈ। ਕੀ ਤੁਸੀਂ ਹੋਰ ਸਿਹਤ ਯੋਜਨਾਵਾਂ ਬਾਰੇ ਜਾਣਨਾ ਚਾਹੋਗੇ?";
       }
-      else if (lowerText.includes("ਸਿੱਖਿਆ") || lowerText.includes("ਸਕੂਲ") || lowerText.includes("ਕਾਲਜ") || lowerText.includes("ਪੜ੍ਹਾਈ") || lowerText.includes("education") || lowerText.includes("school") || lowerText.includes("college")) {
+      else if (lowerText.includes("ਸਿੱਖਿਆ") || lowerText.includes("ਸਕੂਲ") || lowerText.includes("ਕਾਲਜ") || lowerText.includes("ਪੜ੍ਹਾਈ") || lowerText.includes("education") || lowerText.includes("school") || lowerText.includes("college") || lowerText.includes("padhai") || lowerText.includes("vidya") || lowerText.includes("ਵਿਦਿਆ")) {
         responseText = "ਵਿਦਿਆਰਥੀਆਂ ਲਈ ਵਜ਼ੀਫ਼ੇ ਵਰਗੀਆਂ ਕਈ ਸਿੱਖਿਆ ਯੋਜਨਾਵਾਂ ਹਨ। ਪੀਐਮ ਵਿਦਿਆ ਯੋਜਨਾ ਉੱਚ ਸਿੱਖਿਆ ਲਈ ਵਿੱਤੀ ਸਹਾਇਤਾ ਪ੍ਰਦਾਨ ਕਰਦੀ ਹੈ। ਕੀ ਤੁਸੀਂ ਹੋਰ ਜਾਣਨਾ ਚਾਹੋਗੇ?";
       }
-      else if (lowerText.includes("ਕਿਸਾਨ") || lowerText.includes("ਖੇਤੀ") || lowerText.includes("ਫਸਲ") || lowerText.includes("farmer") || lowerText.includes("agriculture") || lowerText.includes("farming")) {
+      else if (lowerText.includes("ਕਿਸਾਨ") || lowerText.includes("ਖੇਤੀ") || lowerText.includes("ਫਸਲ") || lowerText.includes("farmer") || lowerText.includes("agriculture") || lowerText.includes("farming") || lowerText.includes("kheti") || lowerText.includes("fasal") || lowerText.includes("zameen") || lowerText.includes("ਜ਼ਮੀਨ")) {
         responseText = "ਇੱਕ ਕਿਸਾਨ ਵਜੋਂ, ਤੁਸੀਂ ਪੀਐਮ-ਕਿਸਾਨ ਲਈ ਯੋਗ ਹੋ ਸਕਦੇ ਹੋ ਜੋ ਸਾਲਾਨਾ 6,000 ਰੁਪਏ ਦੀ ਆਮਦਨੀ ਸਹਾਇਤਾ ਪ੍ਰਦਾਨ ਕਰਦਾ ਹੈ। ਫਸਲ ਬੀਮਾ ਅਤੇ ਸਬਸਿਡੀ ਵਾਲੇ ਉਪਕਰਣਾਂ ਲਈ ਵੀ ਯੋਜਨਾਵਾਂ ਹਨ।";
       }
-      else if (lowerText.includes("ਘਰ") || lowerText.includes("ਰਿਹਾਇਸ਼") || lowerText.includes("ਮਕਾਨ") || lowerText.includes("house") || lowerText.includes("housing") || lowerText.includes("home")) {
+      else if (lowerText.includes("ਘਰ") || lowerText.includes("ਰਿਹਾਇਸ਼") || lowerText.includes("ਮਕਾਨ") || lowerText.includes("house") || lowerText.includes("housing") || lowerText.includes("home") || lowerText.includes("ghar") || lowerText.includes("makaan") || lowerText.includes("rehaish")) {
         responseText = "ਪੀਐਮ ਆਵਾਸ ਯੋਜਨਾ ਘੱਟ ਆਮਦਨੀ ਵਾਲੇ ਪਰਿਵਾਰਾਂ ਲਈ ਰਿਹਾਇਸ਼ੀ ਸਹਾਇਤਾ ਪ੍ਰਦਾਨ ਕਰਦੀ ਹੈ। ਤੁਸੀਂ ਘਰ ਦੇ ਕਰਜ਼ੇ 'ਤੇ ਸਬਸਿਡੀ ਜਾਂ ਸਿੱਧੀ ਵਿੱਤੀ ਸਹਾਇਤਾ ਲਈ ਯੋਗ ਹੋ ਸਕਦੇ ਹੋ।";
       }
-      else if (lowerText.includes("ਨੌਕਰੀ") || lowerText.includes("ਰੁਜ਼ਗਾਰ") || lowerText.includes("ਕੰਮ") || lowerText.includes("job") || lowerText.includes("employment") || lowerText.includes("work")) {
+      else if (lowerText.includes("ਨੌਕਰੀ") || lowerText.includes("ਰੁਜ਼ਗਾਰ") || lowerText.includes("ਕੰਮ") || lowerText.includes("job") || lowerText.includes("employment") || lowerText.includes("work") || lowerText.includes("naukri") || lowerText.includes("rozgaar") || lowerText.includes("kaam")) {
         responseText = "ਹੁਨਰ ਵਿਕਾਸ ਅਤੇ ਨੌਕਰੀ ਦੀ ਸਿਖਲਾਈ ਲਈ ਪੀਐਮਕੇਵੀਵਾਈ ਵਰਗੀਆਂ ਰੁਜ਼ਗਾਰ ਯੋਜਨਾਵਾਂ ਹਨ। ਮੁਦਰਾ ਯੋਜਨਾ ਛੋਟੇ ਕਾਰੋਬਾਰਾਂ ਅਤੇ ਉੱਦਮੀਆਂ ਲਈ ਕਰਜ਼ੇ ਪ੍ਰਦਾਨ ਕਰਦੀ ਹੈ।";
       }
-      else if (lowerText.includes("ਔਰਤ") || lowerText.includes("ਬੱਚਾ") || lowerText.includes("ਕੁੜੀ") || lowerText.includes("women") || lowerText.includes("child") || lowerText.includes("girl")) {
-        responseText = "ਔਰਤਾਂ ਅਤੇ ਬੱਚਿਆਂ ਲਈ ਯੋਜਨਾਵਾਂ ਵਿੱਚ ਬੇਟੀ ਬਚਾਓ ਬੇਟੀ ਪੜ੍ਹਾਓ ਅਤੇ ਲੜਕੀਆਂ ਦੀ ਸਿੱਖਿਆ ਅਤੇ ਭਲਾਈ ਲਈ ਸੁਕੰਨਿਆ ਸਮ੍ਰਿਧੀ ਯੋਜਨਾ ਸ਼ਾਮਲ ਹਨ।";
+      else if (lowerText.includes("ਔਰਤ") || lowerText.includes("ਬੱਚਾ") || lowerText.includes("ਕੁੜੀ") || lowerText.includes("women") || lowerText.includes("child") || lowerText.includes("girl") || lowerText.includes("aurat") || lowerText.includes("baccha") || lowerText.includes("kudi") || lowerText.includes("ladki") || lowerText.includes("mahila") || lowerText.includes("ਮਹਿਲਾ")) {
+        responseText = "ਔਰਤਾਂ ਅਤੇ ਬੱਚਿਆਂ ਲਈ ਯੋਜਨਾਵਾਂ ਵਿੱਚ ਬੇਟੀ ਬਚਾਓ ਬੇਟੀ ਪੜ੍ਹਾਓ ਅਤੇ ਲੜਕੀਆਂ ਦੀ ਸਿੱਖਿਆ ਅਤੇ ਭਲਾਈ ਲਈ ਸੁਕੰਨਿਆ ਸਮ੍ਰਿਧੀ ਯੋਜਨਾ ਸ਼ਾਮਲ ਹਨ। ਜਣੇਪਾ ਛੁੱਟੀ ਅਤੇ ਜਨਨੀ ਸੁਰੱਖਿਆ ਯੋਜਨਾ ਵੀ ਉਪਲਬਧ ਹਨ।";
       }
-      else if (lowerText.includes("ਯੋਜਨਾ") || lowerText.includes("ਸਕੀਮ") || lowerText.includes("ਸਰਕਾਰ") || lowerText.includes("scheme") || lowerText.includes("government")) {
+      else if (lowerText.includes("ਯੋਜਨਾ") || lowerText.includes("ਸਕੀਮ") || lowerText.includes("ਸਰਕਾਰ") || lowerText.includes("scheme") || lowerText.includes("government") || lowerText.includes("yojana") || lowerText.includes("sarkar")) {
         responseText = "ਭਾਰਤ ਸਰਕਾਰ ਵੱਖ-ਵੱਖ ਸ਼੍ਰੇਣੀਆਂ ਵਿੱਚ ਕਈ ਯੋਜਨਾਵਾਂ ਪੇਸ਼ ਕਰਦੀ ਹੈ। ਤੁਸੀਂ ਕਿਸ ਖਾਸ ਖੇਤਰ ਵਿੱਚ ਸਹਾਇਤਾ ਚਾਹੁੰਦੇ ਹੋ? ਤੁਸੀਂ ਸਿਹਤ, ਸਿੱਖਿਆ, ਖੇਤੀਬਾੜੀ, ਰਿਹਾਇਸ਼, ਰੁਜ਼ਗਾਰ ਜਾਂ ਔਰਤਾਂ ਅਤੇ ਬੱਚਿਆਂ ਦੀ ਭਲਾਈ ਬਾਰੇ ਪੁੱਛ ਸਕਦੇ ਹੋ।";
+      }
+      else if (lowerText.includes("ਬੁਢਾਪਾ") || lowerText.includes("ਪੇਂਸ਼ਨ") || lowerText.includes("old age") || lowerText.includes("pension") || lowerText.includes("senior") || lowerText.includes("budhapa") || lowerText.includes("budhe") || lowerText.includes("ਬੁੱਢੇ")) {
+        responseText = "ਬਜ਼ੁਰਗਾਂ ਲਈ, ਪ੍ਰਧਾਨ ਮੰਤਰੀ ਵਯ ਵੰਦਨਾ ਯੋਜਨਾ ਅਤੇ ਨੈਸ਼ਨਲ ਪੇਂਸ਼ਨ ਸਿਸਟਮ ਵਰਗੀਆਂ ਯੋਜਨਾਵਾਂ ਹਨ ਜੋ ਪੇਂਸ਼ਨ ਅਤੇ ਵਿੱਤੀ ਸੁਰੱਖਿਆ ਪ੍ਰਦਾਨ ਕਰਦੀਆਂ ਹਨ। ਬਜ਼ੁਰਗਾਂ ਲਈ ਸਿਹਤ ਸਹਾਇਤਾ ਵੀ ਉਪਲਬਧ ਹੈ।";
       }
       else if (lowerText.length > 0) {
         responseText = "ਮੈਂ ਤੁਹਾਨੂੰ ਸਿਹਤ, ਸਿੱਖਿਆ, ਖੇਤੀਬਾੜੀ, ਰਿਹਾਇਸ਼, ਰੁਜ਼ਗਾਰ ਅਤੇ ਔਰਤਾਂ ਅਤੇ ਬੱਚਿਆਂ ਦੀ ਭਲਾਈ ਵਰਗੇ ਖੇਤਰਾਂ ਵਿੱਚ ਸਰਕਾਰੀ ਯੋਜਨਾਵਾਂ ਲੱਭਣ ਵਿੱਚ ਮਦਦ ਕਰ ਸਕਦਾ/ਸਕਦੀ ਹਾਂ। ਤੁਸੀਂ ਕਿਸ ਖੇਤਰ ਵਿੱਚ ਦਿਲਚਸਪੀ ਰੱਖਦੇ ਹੋ?";
@@ -244,7 +249,7 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
         : currentLanguage === "ta"
         ? "மன்னிக்கவும், உங்கள் கேள்வியை புரிந்துகொள்ள முடியவில்லை. சுகாதாரம், கல்வி, வேளாண்மை, வீட்டுவசதி, வேலைவாய்ப்பு அல்லது பெண்கள் & குழந்தைகள் நலன் போன்ற தலைப்புகளைப் பற்றி கேட்கவும்."
         : currentLanguage === "pa"
-        ? "ਮੈਨੂੰ ਮਾਫ ਕਰਨਾ, ਮੈਂ ਤੁਹਾਡੇ ਸਵਾਲ ਨੂੰ ਸਮਝ ਨਹੀਂ ਸਕਿਆ। ਕਿਰਪਾ ਕਰਕੇ ਸਿਹਤ, ਸਿੱਖਿਆ, ਖੇਤੀਬਾੜੀ, ਰਿਹਾਇਸ਼, ਰੁਜ਼ਗਾਰ ਜਾਂ ਔਰਤਾਂ ਅਤੇ ਬੱਚਿਆਂ ਦੀ ਭਲਾਈ ਵਰਗੇ ਵਿਸ਼ਿਆਂ ਬਾਰੇ ਪੁੱਛੋ।"
+        ? "ਮੈਨੂੰ ਮਾਫ ਕਰਨਾ, ਮੈਂ ਤੁਹਾਡੇ ਸਵਾਲ ਨੂੰ ਸਮਝ ਨਹੀਂ ਸਕਿਆ। ਕਿਰਪਾ ਕਰਕੇ ਸਿਹਤ, ਸਿੱਖਿਆ, ਖੇਤੀਬਾੜੀ, ਰਿਹਾਇਸ਼, ਰੁਜ਼ਗਾਰ, ਬੁਢਾਪਾ ਪੇਂਸ਼ਨ ਜਾਂ ਔਰਤਾਂ ਅਤੇ ਬੱਚਿਆਂ ਦੀ ਭਲਾਈ ਵਰਗੇ ਵਿਸ਼ਿਆਂ ਬਾਰੇ ਪੁੱਛੋ।"
         : "I'm sorry, I didn't understand your question. Please ask about topics like health, education, agriculture, housing, employment, or women & child welfare.";
       
       setResponse(fallbackResponse);
@@ -259,6 +264,7 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
       const speech = new SpeechSynthesisUtterance();
       speech.text = text;
       
+      // Setting speech language
       speech.lang = currentLanguage === "hi" ? "hi-IN" : 
                     currentLanguage === "bn" ? "bn-IN" : 
                     currentLanguage === "ta" ? "ta-IN" :
@@ -294,6 +300,7 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
           
           console.log(`Looking for voice with language prefix: ${langPrefix}`);
           
+          // Try to find voice with exact language match
           const langVoices = availableVoices.filter(voice => 
             voice.lang.toLowerCase().startsWith(langPrefix.toLowerCase())
           );
@@ -304,6 +311,7 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
             utterance.voice = langVoices[0];
             console.log(`Selected voice: ${utterance.voice.name} (${utterance.voice.lang})`);
           } else {
+            // Fallback to Indian voices
             const indianVoices = availableVoices.filter(voice => 
               voice.lang.endsWith("-IN")
             );
@@ -312,10 +320,11 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
               utterance.voice = indianVoices[0];
               console.log(`Selected Indian voice: ${utterance.voice.name} (${utterance.voice.lang})`);
             } else {
-              console.log(`No matching voice found for ${utterance.lang}, using default voice`);
+              console.log(`No matching voice found for ${utterance.lang}, using fallbacks`);
               
-              // This is a fallback for Punjabi specifically
+              // Specific fallback for Punjabi
               if (currentLanguage === "pa") {
+                // Try Hindi voice as fallback for Punjabi
                 const hindiVoices = availableVoices.filter(voice => 
                   voice.lang.toLowerCase().startsWith("hi")
                 );
@@ -326,13 +335,16 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
                 }
               }
               
-              const googleVoices = availableVoices.filter(voice => 
-                voice.name.includes("Google")
-              );
-              
-              if (googleVoices.length > 0 && !utterance.voice) {
-                utterance.voice = googleVoices[0];
-                console.log(`Selected Google voice: ${utterance.voice.name} (${utterance.voice.lang})`);
+              // If still no voice is selected, try Google voices as they often have better support
+              if (!utterance.voice) {
+                const googleVoices = availableVoices.filter(voice => 
+                  voice.name.includes("Google")
+                );
+                
+                if (googleVoices.length > 0) {
+                  utterance.voice = googleVoices[0];
+                  console.log(`Selected Google voice: ${utterance.voice.name} (${utterance.voice.lang})`);
+                }
               }
             }
           }
