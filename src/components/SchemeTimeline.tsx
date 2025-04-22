@@ -1,8 +1,10 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Timer, Volume2, Play, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 interface TimelineEvent {
   date: string;
@@ -100,6 +102,16 @@ interface SchemeTimelineProps {
 export function SchemeTimeline({ dictionary }: SchemeTimelineProps) {
   const [playingReviewId, setPlayingReviewId] = useState<string | null>(null);
   const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
+  const { toast } = useToast();
+
+  // Clean up speech synthesis when component unmounts
+  useEffect(() => {
+    return () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   const getStatusColor = (status: TimelineEvent["status"]) => {
     switch (status) {
@@ -115,6 +127,17 @@ export function SchemeTimeline({ dictionary }: SchemeTimelineProps) {
   };
 
   const playVoiceReview = (review: VoiceReview) => {
+    // If no speech synthesis is available, show a toast message
+    if (!window.speechSynthesis) {
+      toast({
+        title: "Speech synthesis not supported",
+        description: "Your browser does not support speech synthesis.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // If this review is already playing, stop it
     if (playingReviewId === review.id) {
       window.speechSynthesis.cancel();
       setPlayingReviewId(null);
@@ -122,22 +145,53 @@ export function SchemeTimeline({ dictionary }: SchemeTimelineProps) {
       return;
     }
 
+    // If another review is playing, stop it first
     if (playingReviewId) {
       window.speechSynthesis.cancel();
     }
 
-    const utterance = new SpeechSynthesisUtterance(review.reviewText);
-    utterance.lang = review.language;
-    utterance.rate = 0.9;
+    try {
+      const utterance = new SpeechSynthesisUtterance(review.reviewText);
+      utterance.lang = review.language;
+      utterance.rate = 0.9;
 
-    utterance.onend = () => {
-      setPlayingReviewId(null);
-      setCurrentUtterance(null);
-    };
+      // Set up event handlers
+      utterance.onend = () => {
+        setPlayingReviewId(null);
+        setCurrentUtterance(null);
+      };
 
-    setCurrentUtterance(utterance);
-    setPlayingReviewId(review.id);
-    window.speechSynthesis.speak(utterance);
+      utterance.onerror = (event) => {
+        console.error("SpeechSynthesis error:", event);
+        toast({
+          title: "Playback error",
+          description: "There was an error playing this review.",
+          variant: "destructive",
+        });
+        setPlayingReviewId(null);
+        setCurrentUtterance(null);
+      };
+
+      // Store the utterance and set the playing state
+      setCurrentUtterance(utterance);
+      setPlayingReviewId(review.id);
+      
+      // Play the speech
+      window.speechSynthesis.speak(utterance);
+      
+      // Show toast for feedback
+      toast({
+        title: "Playing review",
+        description: `Playing ${review.userName}'s review in ${review.language.split('-')[0]}`,
+      });
+    } catch (error) {
+      console.error("Speech synthesis error:", error);
+      toast({
+        title: "Playback error",
+        description: "There was an error playing this review.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
