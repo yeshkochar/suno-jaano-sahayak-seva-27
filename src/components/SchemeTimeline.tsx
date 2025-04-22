@@ -1,7 +1,8 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Timer } from "lucide-react";
+import { Timer, Volume2, Play, Pause } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 interface TimelineEvent {
   date: string;
@@ -13,6 +14,14 @@ interface SchemeTimeline {
   id: string;
   name: string;
   events: TimelineEvent[];
+}
+
+interface VoiceReview {
+  id: string;
+  userName: string;
+  schemeName: string;
+  reviewText: string;
+  language: string;
 }
 
 const sampleTimelines: SchemeTimeline[] = [
@@ -60,11 +69,38 @@ const sampleTimelines: SchemeTimeline[] = [
   }
 ];
 
+const sampleVoiceReviews: VoiceReview[] = [
+  {
+    id: "review-1",
+    userName: "Rajesh Kumar",
+    schemeName: "PM-KISAN",
+    reviewText: "I received timely support through PM-KISAN scheme. The application process was simple, and the funds helped me purchase essential farming equipment.",
+    language: "hi-IN"
+  },
+  {
+    id: "review-2",
+    userName: "Priya Sharma",
+    schemeName: "Awas Yojana",
+    reviewText: "Thanks to Awas Yojana, I now have a proper home for my family. The scheme has truly changed our lives.",
+    language: "en-IN"
+  },
+  {
+    id: "review-3",
+    userName: "Amit Patel",
+    schemeName: "PM-KISAN",
+    reviewText: "The quarterly installments from PM-KISAN have helped me maintain steady cash flow for my agricultural needs.",
+    language: "gu-IN"
+  }
+];
+
 interface SchemeTimelineProps {
   dictionary: Record<string, string>;
 }
 
 export function SchemeTimeline({ dictionary }: SchemeTimelineProps) {
+  const [playingReviewId, setPlayingReviewId] = useState<string | null>(null);
+  const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
+
   const getStatusColor = (status: TimelineEvent["status"]) => {
     switch (status) {
       case "completed":
@@ -76,6 +112,32 @@ export function SchemeTimeline({ dictionary }: SchemeTimelineProps) {
       default:
         return "text-gray-600 bg-gray-50";
     }
+  };
+
+  const playVoiceReview = (review: VoiceReview) => {
+    if (playingReviewId === review.id) {
+      window.speechSynthesis.cancel();
+      setPlayingReviewId(null);
+      setCurrentUtterance(null);
+      return;
+    }
+
+    if (playingReviewId) {
+      window.speechSynthesis.cancel();
+    }
+
+    const utterance = new SpeechSynthesisUtterance(review.reviewText);
+    utterance.lang = review.language;
+    utterance.rate = 0.9;
+
+    utterance.onend = () => {
+      setPlayingReviewId(null);
+      setCurrentUtterance(null);
+    };
+
+    setCurrentUtterance(utterance);
+    setPlayingReviewId(review.id);
+    window.speechSynthesis.speak(utterance);
   };
 
   return (
@@ -116,6 +178,44 @@ export function SchemeTimeline({ dictionary }: SchemeTimelineProps) {
             </div>
           </div>
         ))}
+        
+        <div className="mt-8">
+          <h3 className="text-lg font-medium mb-4">{dictionary.beneficiaryReviews || "Beneficiary Reviews"}</h3>
+          <div className="grid gap-4">
+            {sampleVoiceReviews.map((review) => (
+              <div
+                key={review.id}
+                className="p-4 rounded-lg bg-gradient-to-r from-desi-orange/5 to-desi-yellow/5 border border-desi-orange/10"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-medium text-desi-textDark">{review.userName}</p>
+                    <p className="text-sm text-desi-textDark/70">{review.schemeName}</p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
+                    onClick={() => playVoiceReview(review)}
+                  >
+                    {playingReviewId === review.id ? (
+                      <>
+                        <Pause className="h-4 w-4" />
+                        {dictionary.pause || "Pause"}
+                      </>
+                    ) : (
+                      <>
+                        <Play className="h-4 w-4" />
+                        {dictionary.play || "Play"}
+                      </>
+                    )}
+                  </Button>
+                </div>
+                <p className="mt-2 text-sm text-desi-textDark/80">{review.reviewText}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
