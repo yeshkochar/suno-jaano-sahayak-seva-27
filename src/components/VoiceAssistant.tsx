@@ -18,6 +18,7 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
   const [isOpen, setIsOpen] = useState(false);
   const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
+  const [isSpeechRecognitionSupported, setIsSpeechRecognitionSupported] = useState(true);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -35,13 +36,30 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
         recognitionRef.current.continuous = true;
         recognitionRef.current.interimResults = true;
         
-        // Setting language code - ensure proper Punjabi recognition
-        recognitionRef.current.lang = currentLanguage === "hi" ? "hi-IN" : 
-                                    currentLanguage === "bn" ? "bn-IN" :
-                                    currentLanguage === "ml" ? "ml-IN" :
-                                    currentLanguage === "ta" ? "ta-IN" :
-                                    currentLanguage === "pa" ? "pa-IN" : "en-IN";
+        // Setting language codes with fallbacks for better browser compatibility
+        let languageCode = "en-IN"; // Default fallback
+
+        // Try specific language codes first, with fallbacks
+        if (currentLanguage === "hi") {
+          languageCode = "hi-IN";
+        } else if (currentLanguage === "bn") {
+          languageCode = "bn-IN";
+        } else if (currentLanguage === "ml") {
+          languageCode = "ml-IN";
+        } else if (currentLanguage === "ta") {
+          languageCode = "ta-IN";
+        } else if (currentLanguage === "pa") {
+          // Try multiple Punjabi language codes
+          // Some browsers use "pa" or "pa-IN", others might use "pa-Guru-IN"
+          try {
+            languageCode = "pa-IN";
+            // We'll also attempt "pa" and "pa-Guru-IN" if this fails via error handler
+          } catch (error) {
+            console.error("Failed to set language to pa-IN, will try fallbacks:", error);
+          }
+        }
         
+        recognitionRef.current.lang = languageCode;
         console.log(`Speech recognition initialized with language: ${recognitionRef.current.lang}`);
         
         recognitionRef.current.onresult = (event: any) => {
@@ -63,11 +81,30 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
         recognitionRef.current.onerror = (event: any) => {
           console.error("Speech recognition error", event.error);
           setIsListening(false);
-          toast({
-            title: dictionary.errorOccurred || "Error occurred",
-            description: event.error,
-            variant: "destructive",
-          });
+          
+          // Special handling for "not-allowed" and "service-not-allowed" errors
+          if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+            console.log("Speech recognition service not allowed, trying fallback");
+            setIsSpeechRecognitionSupported(false);
+            
+            // If it's specifically a Punjabi language issue, try fallback languages
+            if (currentLanguage === "pa") {
+              tryPunjabiAlternatives();
+            } else {
+              toast({
+                title: dictionary.notSupported || "Not supported",
+                description: dictionary.browserNotSupported || 
+                  "Your browser doesn't support speech recognition for this language. You can still type your query.",
+                variant: "destructive",
+              });
+            }
+          } else {
+            toast({
+              title: dictionary.errorOccurred || "Error occurred",
+              description: event.error,
+              variant: "destructive",
+            });
+          }
         };
         
         recognitionRef.current.onend = () => {
@@ -75,6 +112,7 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
           console.log("Speech recognition ended");
         };
       } else {
+        setIsSpeechRecognitionSupported(false);
         toast({
           title: dictionary.notSupported || "Not supported",
           description: dictionary.browserNotSupported || "Your browser doesn't support speech recognition",
@@ -88,9 +126,56 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
         recognitionRef.current.stop();
       }
     };
-  }, [currentLanguage, dictionary]);
+  }, [currentLanguage, dictionary, toast]);
+  
+  // Function to try alternative language codes for Punjabi
+  const tryPunjabiAlternatives = () => {
+    const alternativeCodes = ["pa", "pa-Guru-IN", "pa-Guru", "hi-IN"]; // Try Hindi as ultimate fallback
+    let alternativeFound = false;
+    
+    // We'll try each code in sequence
+    for (const code of alternativeCodes) {
+      try {
+        if (recognitionRef.current) {
+          recognitionRef.current.lang = code;
+          console.log(`Trying alternative language code: ${code}`);
+          alternativeFound = true;
+          
+          // If we found a working alternative, toast a message
+          toast({
+            title: "Using alternative recognition",
+            description: `Using ${code} as fallback for Punjabi speech recognition`,
+            duration: 3000,
+          });
+          
+          break;
+        }
+      } catch (error) {
+        console.error(`Failed to set language to ${code}:`, error);
+      }
+    }
+    
+    if (!alternativeFound) {
+      // If no alternatives worked, suggest text input
+      toast({
+        title: dictionary.notSupported || "Not supported",
+        description: "Punjabi voice recognition is currently unavailable. Please use Hindi or English instead.",
+        variant: "destructive",
+      });
+    }
+  };
   
   const toggleListening = () => {
+    if (!isSpeechRecognitionSupported) {
+      toast({
+        title: dictionary.notSupported || "Not supported",
+        description: dictionary.browserNotSupported || 
+          "Your browser doesn't support speech recognition for this language. Try a different language or browser.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (isListening) {
       recognitionRef.current?.stop();
       setIsListening(false);
@@ -264,12 +349,27 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
       const speech = new SpeechSynthesisUtterance();
       speech.text = text;
       
-      // Setting speech language
-      speech.lang = currentLanguage === "hi" ? "hi-IN" : 
-                    currentLanguage === "bn" ? "bn-IN" : 
-                    currentLanguage === "ta" ? "ta-IN" :
-                    currentLanguage === "pa" ? "pa-IN" :
-                    currentLanguage === "ml" ? "ml-IN" : "en-US";
+      // Setting speech language with better fallback mechanisms
+      if (currentLanguage === "pa") {
+        // For Punjabi, try multiple language codes with Hindi as fallback
+        try {
+          speech.lang = "pa-IN";
+        } catch (error) {
+          console.error("Failed to set TTS language to pa-IN, trying alternatives:", error);
+          try {
+            speech.lang = "pa";
+          } catch (error) {
+            console.error("Failed to set TTS language to pa, using Hindi fallback:", error);
+            speech.lang = "hi-IN"; // Hindi as fallback for Punjabi
+          }
+        }
+      } else {
+        // For other languages, use standard codes
+        speech.lang = currentLanguage === "hi" ? "hi-IN" : 
+                      currentLanguage === "bn" ? "bn-IN" : 
+                      currentLanguage === "ta" ? "ta-IN" :
+                      currentLanguage === "ml" ? "ml-IN" : "en-US";
+      }
       
       console.log(`Using speech synthesis with language: ${speech.lang}`);
       
@@ -292,18 +392,36 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
         if (availableVoices.length > 0) {
           console.log("Available voices for speech:", availableVoices.length);
           
-          const langPrefix = currentLanguage === "hi" ? "hi" : 
-                           currentLanguage === "bn" ? "bn" :
-                           currentLanguage === "ta" ? "ta" :
-                           currentLanguage === "pa" ? "pa" :
-                           currentLanguage === "ml" ? "ml" : "en";
+          // Primary language code for voice selection
+          let langPrefix = currentLanguage === "hi" ? "hi" : 
+                         currentLanguage === "bn" ? "bn" :
+                         currentLanguage === "ta" ? "ta" :
+                         currentLanguage === "pa" ? "pa" :
+                         currentLanguage === "ml" ? "ml" : "en";
           
           console.log(`Looking for voice with language prefix: ${langPrefix}`);
           
-          // Try to find voice with exact language match
-          const langVoices = availableVoices.filter(voice => 
+          // Prioritize exact matches for the language
+          let langVoices = availableVoices.filter(voice => 
             voice.lang.toLowerCase().startsWith(langPrefix.toLowerCase())
           );
+          
+          // For Punjabi, also try voices that contain "punjabi" in their name
+          if (currentLanguage === "pa" && langVoices.length === 0) {
+            langVoices = availableVoices.filter(voice => 
+              voice.name.toLowerCase().includes("punjabi") || 
+              voice.name.toLowerCase().includes("panjabi")
+            );
+            
+            // If still no voices, try hindi as fallback
+            if (langVoices.length === 0) {
+              langPrefix = "hi";
+              langVoices = availableVoices.filter(voice => 
+                voice.lang.toLowerCase().startsWith(langPrefix.toLowerCase())
+              );
+              console.log(`No Punjabi voices found, using Hindi as fallback`);
+            }
+          }
           
           console.log(`Found ${langVoices.length} matching voices for ${langPrefix}`);
           
@@ -320,31 +438,14 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
               utterance.voice = indianVoices[0];
               console.log(`Selected Indian voice: ${utterance.voice.name} (${utterance.voice.lang})`);
             } else {
-              console.log(`No matching voice found for ${utterance.lang}, using fallbacks`);
+              // If no Indian voices, try Google voices as they often have better support
+              const googleVoices = availableVoices.filter(voice => 
+                voice.name.includes("Google")
+              );
               
-              // Specific fallback for Punjabi
-              if (currentLanguage === "pa") {
-                // Try Hindi voice as fallback for Punjabi
-                const hindiVoices = availableVoices.filter(voice => 
-                  voice.lang.toLowerCase().startsWith("hi")
-                );
-                
-                if (hindiVoices.length > 0) {
-                  utterance.voice = hindiVoices[0];
-                  console.log(`Using Hindi voice as fallback for Punjabi: ${utterance.voice.name}`);
-                }
-              }
-              
-              // If still no voice is selected, try Google voices as they often have better support
-              if (!utterance.voice) {
-                const googleVoices = availableVoices.filter(voice => 
-                  voice.name.includes("Google")
-                );
-                
-                if (googleVoices.length > 0) {
-                  utterance.voice = googleVoices[0];
-                  console.log(`Selected Google voice: ${utterance.voice.name} (${utterance.voice.lang})`);
-                }
+              if (googleVoices.length > 0) {
+                utterance.voice = googleVoices[0];
+                console.log(`Selected Google voice: ${utterance.voice.name} (${utterance.voice.lang})`);
               }
             }
           }
@@ -382,6 +483,18 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
         description: dictionary.noResponseMessage || "There is no response to read",
         variant: "destructive",
       });
+    }
+  };
+  
+  // Detect text input if speech recognition fails
+  const [textInput, setTextInput] = useState("");
+  
+  const handleTextSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (textInput.trim()) {
+      setTranscript(textInput);
+      generateResponse(textInput);
+      setTextInput("");
     }
   };
   
@@ -445,6 +558,21 @@ export function VoiceAssistant({ dictionary, currentLanguage }: VoiceAssistantPr
                 {isListening ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
               </Button>
             </div>
+            
+            {!isSpeechRecognitionSupported && (
+              <form onSubmit={handleTextSubmit} className="flex gap-2 mt-4">
+                <input
+                  type="text"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-desi-blue"
+                  placeholder={dictionary.typeYourQuestion || "Type your question instead"}
+                  value={textInput}
+                  onChange={(e) => setTextInput(e.target.value)}
+                />
+                <Button type="submit" className="bg-desi-blue hover:bg-desi-blue/90">
+                  {dictionary.send || "Send"}
+                </Button>
+              </form>
+            )}
           </div>
         </DialogContent>
       </Dialog>
