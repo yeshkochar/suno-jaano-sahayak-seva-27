@@ -3,6 +3,7 @@ import { Header } from "@/components/Header";
 import { VoiceAssistant } from "@/components/VoiceAssistant";
 import { SchemeCategory } from "@/components/SchemeCategory";
 import { EligibilityChecker } from "@/components/EligibilityChecker";
+import { YojanaQuiz } from "@/components/YojanaQuiz";
 import { Footer } from "@/components/Footer";
 import { dictionaries } from "@/lib/dictionaries";
 import { Button } from "@/components/ui/button";
@@ -83,7 +84,7 @@ const Index = () => {
         </div>
         
         {/* Decorative pattern */}
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNCODgxRkMiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0aDR2MWgtNHYtMXptMCA0aDR2MWgtNHYtMXptMCA0aDR2MWgtNHYtMXptMCA0aDR2MWgtNHYtMXptMCA0aDR2MWgtNHYtMXptMCA0aDR2MWgtNHYtMXpNMTQgMzRoNHYxaC00di0xem0wIDRoNHYxaC00di0xem0wIDRoNHYxaC00di0xem0wIDRoNHYxaC00di0xem0wIDRoNHYxaC00di0xeiIvPjwvZz48L2c+PC9zdmc+')]" />
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNCODgxRkMiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0aDR2MWgtNHYtMXptMCA0aDR2MWgtNHYtMXptMCA0aDR2MWgtNHYtMXptMCA0aDR2MWgtNHYtMXptMCA0aDR2MWgtNHYtMXptMCA0aDR2MWgtNHYtMXpNMTQgMzRoNHYxaC00di0xem0wIDRoNHYxaC00di0xem0wIDRoNHYxaC00di0xem0wIDRoNHYxaC00di0xeiIvPjwvZz48L2c+PC9zdmc+')]" />
       </div>
       
       {/* Categories Section */}
@@ -159,6 +160,13 @@ const Index = () => {
               categoryId="women"
             />
           </div>
+        </div>
+      </section>
+      
+      {/* Yojana Quiz Section */}
+      <section className="py-16 bg-gradient-to-r from-desi-purple/5 to-desi-blue/5">
+        <div className="container mx-auto px-4">
+          <YojanaQuiz dictionary={dictionary} />
         </div>
       </section>
       
