@@ -72,23 +72,23 @@ const sampleTimelines: SchemeTimeline[] = [
 const sampleVoiceReviews: VoiceReview[] = [
   {
     id: "review-1",
-    userName: "Rajesh Kumar",
+    userName: "राजेश कुमार",
     schemeName: "PM-KISAN",
-    reviewText: "I received timely support through PM-KISAN scheme. The application process was simple, and the funds helped me purchase essential farming equipment.",
+    reviewText: "पीएम-किसान योजना के माध्यम से मुझे समय पर सहायता मिली। आवेदन प्रक्रिया सरल थी, और इन निधियों ने मुझे आवश्यक कृषि उपकरण खरीदने में मदद की।",
     language: "hi-IN"
   },
   {
     id: "review-2",
-    userName: "Priya Sharma",
-    schemeName: "Awas Yojana",
-    reviewText: "Thanks to Awas Yojana, I now have a proper home for my family. The scheme has truly changed our lives.",
-    language: "en-IN"
+    userName: "பிரியா சர்மா",
+    schemeName: "அவாஸ் யோஜனா",
+    reviewText: "அவாஸ் யோஜனா திட்டத்தின் மூலம் எனது குடும்பத்திற்கு ஒரு சரியான வீடு கிடைத்தது. இந்தத் திட்டம் எங்கள் வாழ்க்கையை மாற்றியுள்ளது.",
+    language: "ta-IN"
   },
   {
     id: "review-3",
-    userName: "Amit Patel",
+    userName: "અમિત પટેલ",
     schemeName: "PM-KISAN",
-    reviewText: "The quarterly installments from PM-KISAN have helped me maintain steady cash flow for my agricultural needs.",
+    reviewText: "PM-KISAN ની ત્રૈમાસિક હપ્તાની રકમે મને મારી કૃષિ જરૂરિયાતો માટે સ્થિર રોકડ પ્રવાહ જાળવવામાં મદદ કરી.",
     language: "gu-IN"
   }
 ];
