@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Mic, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Map from "@/components/Map";
+import { SchemeTimeline } from "@/components/SchemeTimeline";
 
 const Index = () => {
   const [currentLanguage, setCurrentLanguage] = useState("en");
@@ -167,6 +168,13 @@ const Index = () => {
       <section className="py-16 bg-gradient-to-r from-desi-purple/5 to-desi-blue/5">
         <div className="container mx-auto px-4">
           <YojanaQuiz dictionary={dictionary} />
+        </div>
+      </section>
+      
+      {/* Timeline Tracker Section */}
+      <section className="py-16 bg-gradient-to-r from-desi-purple/5 to-desi-blue/5">
+        <div className="container mx-auto px-4">
+          <SchemeTimeline dictionary={dictionary} />
         </div>
       </section>
       
